@@ -1,8 +1,14 @@
+import { StoreProvider } from "easy-peasy";
 import type { AppProps } from "next/app";
 import "windi.css";
+import globalStates from "../globalStates";
 
 function MyApp({ Component, pageProps }: AppProps) {
-  return <Component {...pageProps} />;
+  return (
+    <StoreProvider store={globalStates}>
+      <Component {...pageProps} />
+    </StoreProvider>
+  );
 }
 
 export default MyApp;
