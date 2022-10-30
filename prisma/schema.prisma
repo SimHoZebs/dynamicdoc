@@ -9,3 +9,24 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model User {
+  id   Int    @id @default(autoincrement())
+  page Page[]
+}
+
+model Page {
+  id         Int     @id @default(autoincrement())
+  title      String
+  author     User    @relation(fields: [authorId], references: [id])
+  authorId   Int
+  blockArray Block[]
+}
+
+model Block {
+  id      Int    @id @default(autoincrement())
+  type    String
+  content String
+  page    Page   @relation(fields: [pageId], references: [id])
+  pageId  Int
+}
