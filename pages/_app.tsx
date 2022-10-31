@@ -1,6 +1,6 @@
 import { StoreProvider } from "easy-peasy";
 import type { AppProps } from "next/app";
-import "windi.css";
+import "../lib/globals.css";
 import globalStates from "../lib/util/globalStates";
 
 function MyApp({ Component, pageProps }: AppProps) {
