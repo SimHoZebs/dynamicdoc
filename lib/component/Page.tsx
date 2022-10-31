@@ -1,14 +1,10 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Block as IBlock } from "@prisma/client";
 import Block from "./Block";
+import { PageWithBlockArray } from "../util/types";
 
-interface Props {
-  blockArray: IBlock[];
-  title: string;
-}
-
-const Document = (props: Props) => {
-  const [blocks, setBlocks] = useState<IBlock[]>(props.blockArray);
+const Page = (props: PageWithBlockArray) => {
+  const [blockArray, setBlockArray] = useState<IBlock[]>(props.blockArray);
   const documentRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -32,7 +28,7 @@ const Document = (props: Props) => {
           pageId: 0,
         };
 
-        setBlocks((prev) => {
+        setBlockArray((prev) => {
           return [...prev, newBlock];
         });
       }
@@ -62,16 +58,22 @@ const Document = (props: Props) => {
       documentRefCurrent.removeEventListener("keydown", arrowNavigation);
       documentRefCurrent.removeEventListener("click", createBlock);
     };
-  }, [blocks.length]);
+  }, [blockArray.length]);
 
   return (
     <div className="flex h-full w-full flex-col p-3" ref={documentRef}>
-      <h1>{props.title}</h1>
-      {blocks.map((block, index) => (
-        <Block key={index} block={block} index={index} setBlocks={setBlocks} />
+      <input className="bg-inherit text-4xl" value={props.title} />
+
+      {blockArray.map((block, index) => (
+        <Block
+          key={index}
+          block={block}
+          index={index}
+          setBlocks={setBlockArray}
+        />
       ))}
     </div>
   );
 };
 
-export default Document;
+export default Page;

@@ -5,11 +5,11 @@ import {
   createTypedHooks,
 } from "easy-peasy";
 
-import { Page } from "./types";
+import { PageWithBlockArray } from "./types";
 
 interface Store {
-  documentArray: Page[];
-  setDocumentArray: Action<Store, Page[]>;
+  documentArray: PageWithBlockArray[];
+  setDocumentArray: Action<Store, PageWithBlockArray[]>;
 }
 
 const globalState = createStore<Store>({

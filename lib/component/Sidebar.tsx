@@ -1,9 +1,11 @@
 import React from "react";
 import { useStoreActions, useStoreState } from "../util/globalStates";
-import { Page } from "../util/types";
+import { PageWithBlockArray } from "../util/types";
 
 interface Props {
-  setSelectedDocument: React.Dispatch<React.SetStateAction<Page | null>>;
+  setSelectedDocument: React.Dispatch<
+    React.SetStateAction<PageWithBlockArray | null>
+  >;
 }
 
 const Sidebar = (props: Props) => {
@@ -27,7 +29,7 @@ const Sidebar = (props: Props) => {
         className="flex rounded bg-blue-500 py-1 px-2 text-xs"
         onClick={() => {
           //Need to auto generate id
-          const newDocument: Page = {
+          const newDocument: PageWithBlockArray = {
             id: 0,
             title: "Untitled document",
             authorId: 0,
