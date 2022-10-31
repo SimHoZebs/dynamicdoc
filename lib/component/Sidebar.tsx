@@ -13,7 +13,7 @@ const Sidebar = (props: Props) => {
   );
 
   return (
-    <div className="bg-dark-700 min-w-30 flex flex-col items-center justify-start p-3">
+    <div className="min-w-30 flex flex-col items-center justify-start bg-dark-700 p-3">
       {documentArray.map((document, index) => (
         <button
           key={index}
@@ -24,7 +24,7 @@ const Sidebar = (props: Props) => {
       ))}
 
       <button
-        className="flex rounded bg-blue-300 py-1 px-2 text-xs"
+        className="flex rounded bg-blue-500 py-1 px-2 text-xs"
         onClick={() => {
           //Need to auto generate id
           const newDocument: Page = {

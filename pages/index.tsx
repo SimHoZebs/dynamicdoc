@@ -10,7 +10,7 @@ const Home: NextPage = () => {
   const [selectedDocument, setSelectedDocument] = useState<IPage | null>(null);
 
   return (
-    <div className="flex h-screen w-screen bg-slate-900 text-gray-200">
+    <div className="flex h-screen w-screen bg-dark-900 text-gray-200">
       <Sidebar setSelectedDocument={setSelectedDocument} />
 
       {selectedDocument ? (
