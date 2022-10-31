@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Block } from "../lib/types";
+import { Block } from "../util/types";
 
 interface Props {
   block: Block;
@@ -17,7 +17,7 @@ const Block = (props: Props) => {
   return (
     <input
       ref={blockRef}
-      className="outline-none bg-dark-800"
+      className="bg-dark-800 outline-none"
       spellCheck={false}
       onChange={(e) => {
         console.log(e.currentTarget.value);

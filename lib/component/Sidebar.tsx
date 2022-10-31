@@ -1,9 +1,9 @@
 import React from "react";
-import { useStoreActions, useStoreState } from "../lib/util/globalStates";
-import { Document } from "../lib/types";
+import { useStoreActions, useStoreState } from "../util/globalStates";
+import { Page } from "../util/types";
 
 interface Props {
-  setSelectedDocument: React.Dispatch<React.SetStateAction<Document | null>>;
+  setSelectedDocument: React.Dispatch<React.SetStateAction<Page | null>>;
 }
 
 const Sidebar = (props: Props) => {
@@ -13,7 +13,7 @@ const Sidebar = (props: Props) => {
   );
 
   return (
-    <div className="flex flex-col bg-dark-700 min-w-30 p-3 justify-start items-center">
+    <div className="bg-dark-700 min-w-30 flex flex-col items-center justify-start p-3">
       {documentArray.map((document, index) => (
         <button
           key={index}
@@ -24,10 +24,13 @@ const Sidebar = (props: Props) => {
       ))}
 
       <button
-        className="rounded flex bg-blue-500 text-xs py-1 px-2"
+        className="flex rounded bg-blue-300 py-1 px-2 text-xs"
         onClick={() => {
-          const newDocument: Document = {
+          //Need to auto generate id
+          const newDocument: Page = {
+            id: 0,
             title: "Untitled document",
+            authorId: 0,
             blockArray: [],
           };
           setDocumentArray([...documentArray, newDocument]);

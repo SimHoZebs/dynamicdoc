@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Block as IBlock } from "../lib/types";
+import { Block as IBlock } from "@prisma/client";
 import Block from "./Block";
 
 interface Props {
@@ -24,9 +24,12 @@ const Document = (props: Props) => {
         ("key" in e && e.key === "Enter") ||
         (e.type === "click" && e.target === e.currentTarget)
       ) {
+        //Need to auto generate id
         const newBlock: IBlock = {
           type: "text",
           content: "empty",
+          id: 0,
+          pageId: 0,
         };
 
         setBlocks((prev) => {
@@ -62,7 +65,7 @@ const Document = (props: Props) => {
   }, [blocks.length]);
 
   return (
-    <div className="flex flex-col h-full w-full p-3" ref={documentRef}>
+    <div className="flex h-full w-full flex-col p-3" ref={documentRef}>
       <h1>{props.title}</h1>
       {blocks.map((block, index) => (
         <Block key={index} block={block} index={index} setBlocks={setBlocks} />

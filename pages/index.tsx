@@ -1,18 +1,16 @@
 import type { NextPage } from "next";
 import { useEffect, useRef, useState } from "react";
-import Sidebar from "../component/Sidebar";
+import Sidebar from "../lib/component/Sidebar";
 import { useStoreState } from "../lib/util/globalStates";
-import Document from "../component/Document";
-import { Document as IDocument } from "../lib/types";
+import Document from "../lib/component/Document";
+import { Page as IPage } from "../lib/util/types";
 
 const Home: NextPage = () => {
   const documentArray = useStoreState((state) => state.documentArray);
-  const [selectedDocument, setSelectedDocument] = useState<IDocument | null>(
-    null
-  );
+  const [selectedDocument, setSelectedDocument] = useState<IPage | null>(null);
 
   return (
-    <div className="flex h-screen bg-dark-800 w-screen text-gray-200">
+    <div className="flex h-screen w-screen bg-slate-900 text-gray-200">
       <Sidebar setSelectedDocument={setSelectedDocument} />
 
       {selectedDocument ? (
