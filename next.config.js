@@ -8,6 +8,9 @@ const nextConfig = {
   webpack(config){
     config.plugins.push(new WindiCSSWebpackPlugin())
     return config
+  },
+  experimental:{
+    appDir: true
   }
 }
 
