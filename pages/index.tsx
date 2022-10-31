@@ -1,9 +1,9 @@
 import type { NextPage } from "next";
 import { useEffect, useRef, useState } from "react";
 import Sidebar from "../component/Sidebar";
-import { useStoreState } from "../globalStates";
+import { useStoreState } from "../lib/util/globalStates";
 import Document from "../component/Document";
-import { Document as IDocument } from "../types";
+import { Document as IDocument } from "../lib/types";
 
 const Home: NextPage = () => {
   const documentArray = useStoreState((state) => state.documentArray);

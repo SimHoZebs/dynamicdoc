@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Block as IBlock } from "../types";
+import { Block as IBlock } from "../lib/types";
 import Block from "./Block";
 
 interface Props {

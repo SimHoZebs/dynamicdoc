@@ -5,7 +5,7 @@ import {
   createTypedHooks,
 } from "easy-peasy";
 
-import { Document } from "./types";
+import { Document } from "../types";
 
 interface Store {
   documentArray: Document[];

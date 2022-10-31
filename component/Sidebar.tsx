@@ -1,6 +1,6 @@
 import React from "react";
-import { useStoreActions, useStoreState } from "../globalStates";
-import { Document } from "../types";
+import { useStoreActions, useStoreState } from "../lib/util/globalStates";
+import { Document } from "../lib/types";
 
 interface Props {
   setSelectedDocument: React.Dispatch<React.SetStateAction<Document | null>>;
