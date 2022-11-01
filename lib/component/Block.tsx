@@ -1,10 +1,10 @@
-import React, { useEffect, useRef, useState } from "react";
-import { Block as IBlock } from "@prisma/client";
+import React, { useEffect, useRef } from "react";
+import { Block } from "@prisma/client";
 
 interface Props {
-  block: IBlock;
+  block: Block;
   index: number;
-  setBlocks: React.Dispatch<React.SetStateAction<IBlock[]>>;
+  setBlockArray: React.Dispatch<React.SetStateAction<Block[]>>;
 }
 
 const Block = (props: Props) => {
@@ -21,7 +21,7 @@ const Block = (props: Props) => {
       spellCheck={false}
       onChange={(e) => {
         console.log(e.currentTarget.value);
-        props.setBlocks((prev) => {
+        props.setBlockArray((prev) => {
           const newBlockArray = [...prev];
           newBlockArray[props.index].content = e.target.value;
           return newBlockArray;

@@ -1,19 +1,19 @@
 import type { NextPage } from "next";
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import Sidebar from "../lib/component/Sidebar";
 import { useStoreState } from "../lib/util/globalStates";
 import Page from "../lib/component/Page";
 import { PageWithBlockArray } from "../lib/util/types";
 
 const Home: NextPage = () => {
-  const pageArray = useStoreState((state) => state.documentArray);
+  const pageArray = useStoreState((state) => state.pageArray);
   const [selectedPage, setSelectedPage] = useState<PageWithBlockArray | null>(
     null
   );
 
   return (
     <div className="flex h-screen w-screen bg-dark-900 text-gray-200">
-      <Sidebar setSelectedDocument={setSelectedPage} />
+      <Sidebar setSelectedPage={setSelectedPage} />
 
       {selectedPage ? (
         <Page {...selectedPage} />

@@ -1,3 +1,4 @@
+import { Page, User } from "@prisma/client";
 import {
   Action,
   action,
@@ -5,17 +6,21 @@ import {
   createTypedHooks,
 } from "easy-peasy";
 
-import { PageWithBlockArray } from "./types";
-
 interface Store {
-  documentArray: PageWithBlockArray[];
-  setDocumentArray: Action<Store, PageWithBlockArray[]>;
+  user: User;
+  setUser: Action<Store, User>;
+  pageArray: Page[];
+  setPageArray: Action<Store, Page[]>;
 }
 
 const globalState = createStore<Store>({
-  documentArray: [],
-  setDocumentArray: action((state, payload) => {
-    state.documentArray = payload;
+  user: { id: 0 },
+  setUser: action((state, payload) => {
+    state.user = payload;
+  }),
+  pageArray: [],
+  setPageArray: action((state, payload) => {
+    state.pageArray = payload;
   })
 
 });
