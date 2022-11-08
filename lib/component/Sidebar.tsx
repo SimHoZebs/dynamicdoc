@@ -1,6 +1,6 @@
 import React from "react";
-import createNewPage from "../api/createNewPage";
-import findPage from "../api/findPage";
+import createPage from "../api/createPage";
+import getPage from "../api/getPage";
 import { useStoreActions, useStoreState } from "../util/globalStates";
 import { PageWithBlockArray } from "../util/types";
 
@@ -21,7 +21,7 @@ const Sidebar = (props: Props) => {
         <button
           key={index}
           onClick={async () => {
-            const selectedPage = await findPage(document.id);
+            const selectedPage = await getPage(document.id);
             props.setSelectedPage(() => selectedPage);
           }}
         >
@@ -36,7 +36,7 @@ const Sidebar = (props: Props) => {
           //Creating a new page without id will require a way for id-less pages and id-ed pages to coexist
           //or a way to update the id of the page after the server responds
           //The page should do nothing regarding its id until then.
-          const newPage = await createNewPage("Untitled document", user.id);
+          const newPage = await createPage("Untitled document", user.id);
           setPageArray([...pageArray, newPage]);
         }}
       >

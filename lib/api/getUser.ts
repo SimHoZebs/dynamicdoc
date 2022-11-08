@@ -1,12 +1,12 @@
 
 import { User } from "@prisma/client";
-import axios from "axios";
+import req from "../util/req";
 
 export default async function createUser(id: string) {
 
-  return (await axios<User>({
+  return (await req<User>({
     method: "GET",
-    url: "http://localhost:3000/api/user",
+    url: "/user",
     params: { id }
   })).data;
 
