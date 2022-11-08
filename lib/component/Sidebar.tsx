@@ -1,6 +1,5 @@
 import React from "react";
 import createNewPage from "../api/createNewPage";
-import createUser from "../api/createUser";
 import findPage from "../api/findPage";
 import { useStoreActions, useStoreState } from "../util/globalStates";
 import { PageWithBlockArray } from "../util/types";
@@ -13,7 +12,6 @@ interface Props {
 
 const Sidebar = (props: Props) => {
   const user = useStoreState((state) => state.user);
-  const setUser = useStoreActions((actions) => actions.setUser);
   const pageArray = useStoreState((state) => state.pageArray);
   const setPageArray = useStoreActions((actions) => actions.setPageArray);
 
@@ -43,15 +41,6 @@ const Sidebar = (props: Props) => {
         }}
       >
         Create document
-      </button>
-
-      <button
-        onClick={async () => {
-          const user = await createUser("test");
-          setUser(user);
-        }}
-      >
-        Create test user
       </button>
     </div>
   );

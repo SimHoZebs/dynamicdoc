@@ -4,17 +4,17 @@ import db from "../../lib/util/db";
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { method } = req;
   const body = req.body;
-  const { userId } = req.query;
+  const { id } = req.query;
 
   let response;
 
   switch (method) {
     case 'GET':
-      if (!userId) return;
+      if (!id) return;
 
       response = await db.user.findFirst({
         where: {
-          id: parseInt(userId as string)
+          id: parseInt(id as string)
         },
       });
       break;
