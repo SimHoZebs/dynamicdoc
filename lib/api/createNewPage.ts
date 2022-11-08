@@ -12,5 +12,5 @@ export default async function createNewPage(title: string, authorId: number) {
   }
   );
 
-  return (await axios.post<Page>("http://localhost:3000/api/page", pageCreateInput)).data;
+  return (await axios<Page>({ method: "POST", url: "http://localhost:3000/api/page", data: { pageCreateInput } })).data;
 };

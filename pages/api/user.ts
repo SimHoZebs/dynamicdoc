@@ -1,22 +1,28 @@
-import { NextApiRequest, NextApiResponse } from 'next';
+import { NextApiRequest, NextApiResponse } from "next";
 import db from "../../lib/util/db";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { method } = req;
   const body = req.body;
+  const { userId } = req.query;
+
   let response;
 
   switch (method) {
     case 'GET':
-      response = await db.page.findFirst({
+      if (!userId) return;
+
+      response = await db.user.findFirst({
         where: {
-          authorId: body.authorId
+          id: parseInt(userId as string)
         },
       });
       break;
 
     case 'POST':
-      response = await db.page.create({ data: body.pageCreateInput });
+      response = await db.user.create({
+        data: body.userCreateInput
+      });
       break;
   }
 

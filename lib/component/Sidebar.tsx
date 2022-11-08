@@ -13,6 +13,7 @@ interface Props {
 
 const Sidebar = (props: Props) => {
   const user = useStoreState((state) => state.user);
+  const setUser = useStoreActions((actions) => actions.setUser);
   const pageArray = useStoreState((state) => state.pageArray);
   const setPageArray = useStoreActions((actions) => actions.setPageArray);
 
@@ -43,7 +44,15 @@ const Sidebar = (props: Props) => {
       >
         Create document
       </button>
-      <button onClick={() => createUser("test")}>Create user</button>
+
+      <button
+        onClick={async () => {
+          const user = await createUser("test");
+          setUser(user);
+        }}
+      >
+        Create test user
+      </button>
     </div>
   );
 };
