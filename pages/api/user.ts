@@ -1,34 +1,37 @@
+import { Prisma } from "@prisma/client";
 import { NextApiRequest, NextApiResponse } from "next";
+import apiEndpointHelper from "../../lib/util/apiEndpointHelper";
 import db from "../../lib/util/db";
 
+type Body = {
+  userCreateInput: Prisma.UserCreateInput;
+};
+
+export type Api = Awaited<ReturnType<typeof handler>>;
+
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const { method } = req;
-  const body = req.body;
+  const body: Body = req.body;
   const { id } = req.query;
 
-  let response;
-
-  switch (method) {
-    case 'GET':
-      if (!id) return;
-
-      response = await db.user.findFirst({
+  const methodFunctions = {
+    get: async () => {
+      return await db.user.findFirst({
         where: {
           id: parseInt(id as string)
         },
       });
-      break;
+    },
 
-    case 'POST':
-      response = await db.user.create({
+    post: async () => {
+      return await db.user.create({
         data: body.userCreateInput
       });
-      break;
-  }
+    },
+  };
 
-  try {
-    res.status(200).json(response);
-  } catch (error) {
-    res.status(400).json(error);
-  }
+  const { status, response } = await apiEndpointHelper<typeof methodFunctions>(req, methodFunctions);
+
+  res.status(status).json(response);
+
+  return methodFunctions;
 }

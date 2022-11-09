@@ -1,28 +1,35 @@
+import { Prisma } from '@prisma/client';
 import { NextApiRequest, NextApiResponse } from 'next';
+import apiEndpointHelper from '../../lib/util/apiEndpointHelper';
 import db from "../../lib/util/db";
 
+type Body = {
+  authorId: number;
+  pageCreateInput: Prisma.PageCreateInput;
+};
+
+export type Api = Awaited<ReturnType<typeof handler>>;
+
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const { method } = req;
-  const body = req.body;
-  let response;
+  const body: Body = req.body;
 
-  switch (method) {
-    case 'GET':
-      response = await db.page.findFirst({
-        where: {
-          authorId: body.authorId
-        },
-      });
-      break;
+  const methodFunctions = {
+    get: async () => await db.page.findFirst({
+      where: {
+        authorId: body.authorId
+      },
+      include: {
+        blockArray: true
+      }
+    })
+    ,
 
-    case 'POST':
-      response = await db.page.create({ data: body.pageCreateInput });
-      break;
-  }
+    post: async () => await db.page.create({ data: body.pageCreateInput })
+  };
 
-  try {
-    res.status(200).json(response);
-  } catch (error) {
-    res.status(400).json(error);
-  }
+  const { status, response } = await apiEndpointHelper<typeof methodFunctions>(req, methodFunctions);
+
+  res.status(status).json(response);
+
+  return methodFunctions;
 }

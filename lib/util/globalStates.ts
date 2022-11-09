@@ -14,7 +14,7 @@ interface Store {
 }
 
 const globalState = createStore<Store>({
-  user: { id: 0 },
+  user: { id: 0, name: "" },
   setUser: action((state, payload) => {
     state.user = payload;
   }),

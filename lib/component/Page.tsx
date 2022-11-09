@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Block as IBlock } from "@prisma/client";
 import Block from "./Block";
-import createBlock from "../api/createBlock";
+import addBlockToPage from "../api/createBlock";
 import { PageWithBlockArray } from "../util/types";
 
 const Page = (props: PageWithBlockArray) => {
@@ -26,7 +26,7 @@ const Page = (props: PageWithBlockArray) => {
         //Creating a new block without id will require a way for id-less block and id-ed block to coexist
         //or a way to update the id of the block after the server responds
         //The block should do nothing regarding its id until then.
-        const newBlock = await createBlock("", "", props.id);
+        const newBlock = await addBlockToPage("", "", props.id);
 
         setBlockArray((prev) => {
           return [...prev, newBlock];

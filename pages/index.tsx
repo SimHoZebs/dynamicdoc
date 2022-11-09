@@ -22,9 +22,13 @@ const Home = () => {
 
       <button
         onClick={async () => {
-          const user = await getUser("2");
-          setUser(user);
-          router.push(`/${user.id}`);
+          let user = await getUser("2");
+          if (!user) {
+            console.log("User id 2 not found, try creating new user");
+          } else {
+            setUser(user);
+            router.push(`/${user.id}`);
+          }
         }}
       >
         load user 2

@@ -1,4 +1,5 @@
-import { Page, Prisma } from "@prisma/client";
+import { Prisma } from "@prisma/client";
+import { Api } from "../../pages/api/page";
 import req from "../util/req";
 
 export default async function createPage(title: string, authorId: number) {
@@ -12,7 +13,7 @@ export default async function createPage(title: string, authorId: number) {
   }
   );
 
-  return (await req<Page>({
+  return (await req<Awaited<ReturnType<Api["post"]>>>({
     method: "POST",
     url: "/page",
     data: { pageCreateInput }

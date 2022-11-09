@@ -1,7 +1,13 @@
-import axios from "axios";
+import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
 
-const req = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_URL + "/api"
-});
+function req<T = unknown, D = any>(config: AxiosRequestConfig<D>) {
+  return axios.create({
+    baseURL: process.env.NEXT_PUBLIC_URL + "/api"
+  })<T, AxiosResponse<T>, D>(
+
+    config
+
+  );
+};
 
 export default req;

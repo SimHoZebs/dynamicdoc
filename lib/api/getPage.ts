@@ -1,5 +1,5 @@
-import axios from "axios";
 import req from "../util/req";
+import { PageWithBlockArray } from "../util/types";
 
 /**
  * 
@@ -8,7 +8,7 @@ import req from "../util/req";
  */
 export default async function getPage(id: number) {
 
-  return (await req({
+  return (await req<PageWithBlockArray>({
     method: "GET",
     url: `/page?${id}`,
   })).data;
