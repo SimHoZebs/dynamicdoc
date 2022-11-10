@@ -6,9 +6,7 @@ export default async function apiEndpointHelper<T extends Partial<Record<Method,
   method: string | undefined,
   methodFunctions: T
 ) {
-  console.log("method", method);
-
-  let validMethod: Lowercase<Method>;
+  let validMethod;
   try {
     if (method && Object.keys(methodFunctions).includes(method.toLowerCase())) {
       validMethod = method.toLowerCase() as Lowercase<Method>;
@@ -26,7 +24,6 @@ export default async function apiEndpointHelper<T extends Partial<Record<Method,
 
     const response = await methodFunction();
     return { status: 200, response };
-
   }
   catch (error) {
     console.log(error);

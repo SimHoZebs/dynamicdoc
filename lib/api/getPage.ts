@@ -1,4 +1,4 @@
-import { Endpoint } from "../../pages/api/page";
+import Endpoint from "../../pages/api/page";
 import req from "../util/req";
 
 /**
@@ -8,7 +8,7 @@ import req from "../util/req";
  */
 export default async function getPage(id: number) {
 
-  return (await req<Endpoint, "get">({
+  return (await req<typeof Endpoint, "get">({
     method: "GET",
     url: `page?${id}`,
   })).data;

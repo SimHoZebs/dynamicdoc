@@ -3,8 +3,6 @@ import { NextApiRequest, NextApiResponse } from "next";
 import apiEndpointHelper from "../../lib/util/apiEndpointHelper";
 import db from "../../lib/util/db";
 
-export type Endpoint = Awaited<ReturnType<typeof handler>>;
-
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { body, query, method } = req;
 
