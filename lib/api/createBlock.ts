@@ -2,7 +2,7 @@ import { Prisma } from "@prisma/client";
 import req from "../util/req";
 
 export default async function createBlock(type: string, content: string, pageId: number) {
-  const blockCreateInput = Prisma.validator<Prisma.BlockCreateInput>()({
+  const blockCreateInput: Prisma.BlockCreateInput = {
     type,
     content,
     page: {
@@ -10,11 +10,11 @@ export default async function createBlock(type: string, content: string, pageId:
         id: pageId
       }
     }
-  });
+  };
 
   return (await req({
     method: "PATCH",
-    url: "/page",
+    url: "page",
     data: { blockCreateInput }
   })).data;
 

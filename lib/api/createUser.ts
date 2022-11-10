@@ -3,13 +3,13 @@ import { Endpoint } from "../../pages/api/user";
 import req from "../util/req";
 
 export default async function createUser(name: string) {
-  const userCreateInput = Prisma.validator<Prisma.UserCreateInput>()({
+  const userCreateInput: Prisma.UserCreateInput = {
     name
-  });
+  };
 
   return (await req<Endpoint, "post">({
     method: "POST",
-    url: "/user",
+    url: "user",
     data: { userCreateInput }
   })).data;
 

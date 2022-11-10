@@ -10,6 +10,6 @@ export default async function getPage(id: number) {
 
   return (await req<Endpoint, "get">({
     method: "GET",
-    url: `/page?${id}`,
+    url: `page?${id}`,
   })).data;
 }

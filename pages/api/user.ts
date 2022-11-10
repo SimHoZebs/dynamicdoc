@@ -1,5 +1,4 @@
 import { Prisma } from "@prisma/client";
-import { Method } from "axios";
 import { NextApiRequest, NextApiResponse } from "next";
 import apiEndpointHelper from "../../lib/util/apiEndpointHelper";
 import db from "../../lib/util/db";

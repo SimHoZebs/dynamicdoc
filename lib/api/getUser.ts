@@ -5,7 +5,7 @@ export default async function createUser(id: string) {
 
   return (await req<Endpoint, "get">({
     method: "GET",
-    url: "/user",
+    url: "user",
     params: { id }
   })).data;
 

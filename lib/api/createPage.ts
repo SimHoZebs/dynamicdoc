@@ -3,19 +3,18 @@ import { Endpoint } from "../../pages/api/page";
 import req from "../util/req";
 
 export default async function createPage(title: string, authorId: number) {
-  const pageCreateInput = Prisma.validator<Prisma.PageCreateInput>()({
+  const pageCreateInput: Prisma.PageCreateInput = {
     title,
     author: {
       connect: {
         id: authorId
       }
-    }
-  }
-  );
+    },
+  };
 
   return (await req<Endpoint, "post">({
     method: "POST",
-    url: "/page",
+    url: "page",
     data: { pageCreateInput }
   })).data;
 };
