@@ -1,29 +1,35 @@
-import { NextApiRequest } from "next";
+import { Method } from "axios";
 
-export default async function apiEndpointHelper<T extends { [key: string]: () => Promise<any>; }>(
-  req: NextApiRequest,
+type MethodFunction = () => Promise<unknown>;
+
+export default async function apiEndpointHelper<T extends Partial<Record<Method, MethodFunction>>>(
+  method: string | undefined,
   methodFunctions: T
 ) {
+  console.log("method", method);
 
-  const { method } = req;
-
-  let validMethod;
+  let validMethod: Lowercase<Method>;
   try {
-    if (method && method in methodFunctions) {
-      validMethod = method as keyof T;
+    if (method && Object.keys(methodFunctions).includes(method.toLowerCase())) {
+      validMethod = method.toLowerCase() as Lowercase<Method>;
     } else {
       throw new Error(`Method ${method} is not recognized. Please use one of the following: ${Object.keys(methodFunctions).join(", ")}`);
     }
   }
   catch (error) {
+    console.log(error);
     return { status: 404, response: error };
   }
 
   try {
-    const response = await methodFunctions[validMethod]();
+    const methodFunction = methodFunctions[validMethod] as MethodFunction;
+
+    const response = await methodFunction();
     return { status: 200, response };
+
   }
   catch (error) {
-    return { status: 500, response: error };
+    console.log(error);
+    return { status: 500, response: error instanceof Error ? error.message : error };
   }
 }

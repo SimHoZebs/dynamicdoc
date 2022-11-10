@@ -1,5 +1,5 @@
+import { Endpoint } from "../../pages/api/page";
 import req from "../util/req";
-import { PageWithBlockArray } from "../util/types";
 
 /**
  * 
@@ -8,7 +8,7 @@ import { PageWithBlockArray } from "../util/types";
  */
 export default async function getPage(id: number) {
 
-  return (await req<PageWithBlockArray>({
+  return (await req<Endpoint, "get">({
     method: "GET",
     url: `/page?${id}`,
   })).data;

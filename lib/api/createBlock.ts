@@ -1,4 +1,4 @@
-import { Block, Prisma } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 import req from "../util/req";
 
 export default async function createBlock(type: string, content: string, pageId: number) {
@@ -12,7 +12,7 @@ export default async function createBlock(type: string, content: string, pageId:
     }
   });
 
-  return (await req<Block>({
+  return (await req({
     method: "PATCH",
     url: "/page",
     data: { blockCreateInput }

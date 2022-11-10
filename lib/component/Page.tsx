@@ -28,9 +28,10 @@ const Page = (props: PageWithBlockArray) => {
         //The block should do nothing regarding its id until then.
         const newBlock = await addBlockToPage("", "", props.id);
 
-        setBlockArray((prev) => {
-          return [...prev, newBlock];
-        });
+        //reactivate once newBlock is implmented in api
+        // setBlockArray((prev) => {
+        //   return [...prev, newBlock];
+        // });
       }
     };
 
@@ -67,7 +68,7 @@ const Page = (props: PageWithBlockArray) => {
       pageRefEl.removeEventListener("keydown", arrowNavigation);
       pageRefEl.removeEventListener("click", createBlock);
     };
-  }, [blockArray.length]);
+  }, [blockArray.length, props.id]);
 
   return (
     <div className="flex h-full w-full flex-col p-3" ref={pageRef}>
