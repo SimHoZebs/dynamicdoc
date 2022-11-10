@@ -8,3 +8,5 @@ export type PageWithBlockArray = Prisma.PageGetPayload<{
     blockArray: true;
   };
 }>;
+
+export type BackEndParams<T> = { [K in keyof T]: string };

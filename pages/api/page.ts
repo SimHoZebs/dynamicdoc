@@ -2,41 +2,51 @@ import { Prisma } from '@prisma/client';
 import { NextApiRequest, NextApiResponse } from 'next';
 import apiEndpointHelper from '../../lib/util/apiEndpointHelper';
 import db from "../../lib/util/db";
+import { BackEndParams } from '../../lib/util/types';
 
 type Params = Partial<{
-  userId: string;
-  pageFindMany: string;
+  id: number;
+  authorId: number;
+  blockArray: boolean;
 }>;
 
 type Data = Partial<{
   pageCreateInput: Prisma.PageCreateInput;
 }>;
 
+export type Endpoint = { handler: typeof handler; data: Data; params: Params; };
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const params: Params = req.query;
+  const params: BackEndParams<Params> = req.query;
   const data: Data = req.body;
   const { method } = req;
 
   const methodFunctions = {
     get: async () => {
-      if (params.pageFindMany) {
-        return await db.page.findMany(JSON.parse(params.pageFindMany));
+      if (!params.authorId) throw new Error(`authorId does not exist`);
+
+      if (!params.blockArray) {
+        return await db.page.findMany({
+          where: {
+            authorId: parseInt(params.authorId)
+          }
+        });
       } else {
-        if (!params.userId) throw new Error(`userId is undefined`);
+        if (!params.id) throw new Error("documentId does not exist");
         return await db.page.findFirst({
           where: {
-            authorId: parseInt(params.userId)
+            id: parseInt(params.id),
+            authorId: parseInt(params.authorId)
           },
           include: {
             blockArray: true
           }
         });
       }
-    }
-    ,
+    },
 
     post: async () => {
       if (!data.pageCreateInput) throw new Error(`pageCreateInput is ${data.pageCreateInput}. There may be a typo in the data field of API function.`);
+
       return await db.page.create({ data: data.pageCreateInput });
     }
   };
@@ -44,6 +54,5 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const { status, response } = await apiEndpointHelper<typeof methodFunctions>(method, methodFunctions);
 
   res.status(status).json(response);
-
-  return { methodFunctions, params, data };
+  return methodFunctions;
 }

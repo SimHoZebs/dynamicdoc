@@ -2,18 +2,22 @@ import { Prisma } from "@prisma/client";
 import { NextApiRequest, NextApiResponse } from "next";
 import apiEndpointHelper from "../../lib/util/apiEndpointHelper";
 import db from "../../lib/util/db";
+import { BackEndParams } from "../../lib/util/types";
 
 type Data = Partial<{
   userCreateInput: Prisma.UserCreateInput;
 }>;
 
 type Params = Partial<{
-  id: string;
+  id: number;
 }>;
 
+export type Endpoint = {
+  handler: typeof handler, data: Data, params: Params;
+};
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const data = req.body as Data;
-  const params: Params = req.query;
+  const params: BackEndParams<Params> = req.query;
   const { method } = req;
 
   const methodFunctions = {
@@ -40,5 +44,5 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   res.status(status).json(response);
 
-  return { methodFunctions, params, data };
+  return methodFunctions;
 }

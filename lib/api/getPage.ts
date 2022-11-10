@@ -1,4 +1,4 @@
-import Endpoint from "../../pages/api/page";
+import { Endpoint } from "../../pages/api/page";
 import req from "../util/req";
 
 /**
@@ -6,12 +6,12 @@ import req from "../util/req";
  * @param userId 
  * @returns `null` if there are no pages.
  */
-export default async function getPage(userId: number) {
+export default async function getPage(documentId: number, userId: number) {
 
-  const data = (await req<typeof Endpoint, "get">({
+  const data = (await req<Endpoint, "get">({
     method: "GET",
     url: "page",
-    params: { userId: userId.toString() }
+    params: { id: documentId, authorId: userId, blockArray: true }
   })).data;
 
   if (data && ("blockArray" in data)) {

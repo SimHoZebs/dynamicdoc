@@ -1,6 +1,5 @@
 import req from "../util/req";
-import Endpoint from "../../pages/api/page";
-import { Prisma } from "@prisma/client";
+import { Endpoint } from "../../pages/api/page";
 
 /**
  * get pageArray
@@ -8,15 +7,11 @@ import { Prisma } from "@prisma/client";
  * @returns 
  */
 export async function getAllPages(userId: number) {
-  const pageFindMany: Prisma.PageFindManyArgs = {
-    where: {
-      authorId: userId
-    }
-  };
-  const data = (await req<typeof Endpoint, "get">({
+
+  const data = (await req<Endpoint, "get">({
     method: "GET",
     url: "page",
-    params: { pageFindMany: JSON.stringify(pageFindMany) }
+    params: { authorId: userId }
   })).data;
 
   if (data && !("blockArray" in data)) {

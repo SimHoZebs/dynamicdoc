@@ -1,12 +1,12 @@
-import Endpoint from "../../pages/api/user";
+import { Endpoint } from "../../pages/api/user";
 import req from "../util/req";
 
 export default async function createUser(id: number) {
 
-  return (await req<typeof Endpoint, "get">({
+  return (await req<Endpoint, "get">({
     method: "GET",
     url: "user",
-    params: { id: id.toString() }
+    params: { id }
   })).data;
 
 }

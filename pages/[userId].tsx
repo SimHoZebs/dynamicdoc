@@ -31,14 +31,16 @@ const Home = (
 export const getServerSideProps = async (
   context: GetServerSidePropsContext
 ) => {
-  console.log(context.query);
   const userId = context.query.userId;
-  if (!userId)
+  //query is randomly "favicon.ico" sometimes?
+  if (!userId || userId === "favicon.ico") {
+    console.log("userId is", userId);
     return {
       props: {
         user: null,
       },
     };
+  }
 
   const user = await getUser(parseInt(userId as string));
   return {

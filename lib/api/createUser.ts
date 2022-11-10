@@ -1,5 +1,5 @@
 import { Prisma } from "@prisma/client";
-import Endpoint from "../../pages/api/user";
+import { Endpoint } from "../../pages/api/user";
 import req from "../util/req";
 
 export default async function createUser(name: string) {
@@ -7,7 +7,7 @@ export default async function createUser(name: string) {
     name
   };
 
-  return (await req<typeof Endpoint, "post">({
+  return (await req<Endpoint, "post">({
     method: "POST",
     url: "user",
     data: { userCreateInput }

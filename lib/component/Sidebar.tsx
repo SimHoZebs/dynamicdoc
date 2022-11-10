@@ -40,12 +40,13 @@ const Sidebar = (props: Props) => {
     <div className="min-w-30 flex flex-col items-center justify-start gap-y-2 bg-dark-700 p-3">
       <div>Username: {user.name}</div>
 
-      <div>
+      <div className="flex flex-col">
         {pageArray.map((document, index) => (
           <button
+            className="rounded p-1 hover:bg-dark-200"
             key={index}
             onClick={async () => {
-              const selectedPage = await getPage(document.id);
+              const selectedPage = await getPage(document.id, user.id);
               props.setSelectedPage(() => selectedPage);
             }}
           >
