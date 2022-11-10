@@ -4,9 +4,8 @@ import apiEndpointHelper from '../../lib/util/apiEndpointHelper';
 import db from "../../lib/util/db";
 
 type Params = Partial<{
-  userId: number;
-  allPages: boolean;
-  pageFindMany: Prisma.PageFindManyArgs;
+  userId: string;
+  pageFindMany: string;
 }>;
 
 type Data = Partial<{
@@ -20,18 +19,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   const methodFunctions = {
     get: async () => {
-      if (!params.userId) throw new Error("No userId provided.");
-
       if (params.pageFindMany) {
-        return await db.page.findMany({
-          where: {
-            authorId: params.userId
-          }
-        });
+        return await db.page.findMany(JSON.parse(params.pageFindMany));
       } else {
+        if (!params.userId) throw new Error(`userId is undefined`);
         return await db.page.findFirst({
           where: {
-            authorId: params.userId
+            authorId: parseInt(params.userId)
           },
           include: {
             blockArray: true

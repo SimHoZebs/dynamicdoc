@@ -8,7 +8,7 @@ type Data = Partial<{
 }>;
 
 type Params = Partial<{
-  id: number;
+  id: string;
 }>;
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -22,7 +22,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
       return await db.user.findFirst({
         where: {
-          id: params.id
+          id: parseInt(params.id)
         },
       });
     },

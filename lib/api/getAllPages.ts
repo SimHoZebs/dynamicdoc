@@ -2,8 +2,6 @@ import req from "../util/req";
 import Endpoint from "../../pages/api/page";
 import { Prisma } from "@prisma/client";
 
-type test = Awaited<ReturnType<typeof Endpoint>>["params"];
-
 /**
  * get pageArray
  * @param userId 
@@ -18,7 +16,7 @@ export async function getAllPages(userId: number) {
   const data = (await req<typeof Endpoint, "get">({
     method: "GET",
     url: "page",
-    params: { pageFindMany }
+    params: { pageFindMany: JSON.stringify(pageFindMany) }
   })).data;
 
   if (data && !("blockArray" in data)) {

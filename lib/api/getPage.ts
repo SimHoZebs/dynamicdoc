@@ -11,7 +11,7 @@ export default async function getPage(userId: number) {
   const data = (await req<typeof Endpoint, "get">({
     method: "GET",
     url: "page",
-    params: { userId }
+    params: { userId: userId.toString() }
   })).data;
 
   if (data && ("blockArray" in data)) {
