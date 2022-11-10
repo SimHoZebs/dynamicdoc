@@ -22,7 +22,7 @@ const Home = () => {
 
       <button
         onClick={async () => {
-          let user = await getUser("2");
+          let user = await getUser(2);
           if (!user) {
             console.log("User id 2 not found, try creating new user");
           } else {

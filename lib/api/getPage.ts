@@ -2,14 +2,22 @@ import Endpoint from "../../pages/api/page";
 import req from "../util/req";
 
 /**
- * 
- * @param id 
- * @returns `Page` with `BlockArray` if page with id `id` exists; `null` otherwise.
+ * Returns a single page with `blockArray`.
+ * @param userId 
+ * @returns `null` if there are no pages.
  */
-export default async function getPage(id: number) {
+export default async function getPage(userId: number) {
 
-  return (await req<typeof Endpoint, "get">({
+  const data = (await req<typeof Endpoint, "get">({
     method: "GET",
-    url: `page?${id}`,
+    url: "page",
+    params: { userId }
   })).data;
+
+  if (data && ("blockArray" in data)) {
+    return data;
+  }
+  else {
+    return null;
+  }
 }

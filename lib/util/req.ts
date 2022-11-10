@@ -3,22 +3,28 @@ import { NextApiRequest, NextApiResponse } from "next";
 
 type Handler = (res: NextApiRequest, req: NextApiResponse) => Promise<{
   methodFunctions: Partial<Record<Method, () => Promise<unknown>>>;
-  params: Partial<Record<Method, unknown>>;
-  data: Partial<Record<Method, unknown>>;
+  params: Partial<Record<string, unknown>>;
+  data: Partial<Record<string, unknown>>;
 }>;
 
-function req<T extends Handler, D extends Method>(config: AxiosRequestConfig<{ [key: string]: Awaited<ReturnType<T>>["data"][D]; }>) {
+type AwaitedReturn<T extends (...args: any[]) => Promise<unknown>> = Awaited<ReturnType<T>>;
+
+interface Config<T extends Handler> extends AxiosRequestConfig<AwaitedReturn<T>["data"]> {
+  params?: AwaitedReturn<T>["params"];
+};
+
+function req<T extends Handler, D extends Lowercase<Method>>(config: Config<T>) {
 
   //Nonnullable enforced as method will always exist.
   //I'd like to narrow it out of undefined, but I can't narrow generics.
-  type res = Awaited<ReturnType<NonNullable<Awaited<ReturnType<T>>["methodFunctions"][D]>>>;
+  type Res = AwaitedReturn<NonNullable<AwaitedReturn<T>["methodFunctions"][D]>>;
 
   return axios.create({
     baseURL: process.env.NEXT_PUBLIC_URL + "/api/"
   })
-    <res,
-      AxiosResponse<res>,
-      { [key: string]: Awaited<ReturnType<T>>["data"][D]; }
+    <Res,
+      AxiosResponse<Res>,
+      AwaitedReturn<T>["data"]
     >(
       config
     );

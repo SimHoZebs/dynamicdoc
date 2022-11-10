@@ -3,28 +3,48 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import apiEndpointHelper from '../../lib/util/apiEndpointHelper';
 import db from "../../lib/util/db";
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const { body, query, method } = req;
-  const params = {
-    get: parseInt(query.authorId as string)
-  };
+type Params = Partial<{
+  userId: number;
+  allPages: boolean;
+  pageFindMany: Prisma.PageFindManyArgs;
+}>;
 
-  const data = {
-    post: body.pageCreateInput as Prisma.PageCreateInput
-  };
+type Data = Partial<{
+  pageCreateInput: Prisma.PageCreateInput;
+}>;
+
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  const params: Params = req.query;
+  const data: Data = req.body;
+  const { method } = req;
 
   const methodFunctions = {
-    get: async () => await db.page.findFirst({
-      where: {
-        authorId: params.get
-      },
-      include: {
-        blockArray: true
+    get: async () => {
+      if (!params.userId) throw new Error("No userId provided.");
+
+      if (params.pageFindMany) {
+        return await db.page.findMany({
+          where: {
+            authorId: params.userId
+          }
+        });
+      } else {
+        return await db.page.findFirst({
+          where: {
+            authorId: params.userId
+          },
+          include: {
+            blockArray: true
+          }
+        });
       }
-    })
+    }
     ,
 
-    post: async () => await db.page.create({ data: data.post })
+    post: async () => {
+      if (!data.pageCreateInput) throw new Error(`pageCreateInput is ${data.pageCreateInput}. There may be a typo in the data field of API function.`);
+      return await db.page.create({ data: data.pageCreateInput });
+    }
   };
 
   const { status, response } = await apiEndpointHelper<typeof methodFunctions>(method, methodFunctions);
