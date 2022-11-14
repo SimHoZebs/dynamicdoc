@@ -1,11 +1,12 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Block as IBlock } from "@prisma/client";
 import Block from "./Block";
 import addBlockToPage from "../api/createBlock";
-import { PageWithBlockArray } from "../util/types";
+import { ClientSideBlock, PageWithBlockArray } from "../util/types";
 
 const Page = (props: PageWithBlockArray) => {
-  const [blockArray, setBlockArray] = useState<IBlock[]>(props.blockArray);
+  const [blockArray, setBlockArray] = useState<ClientSideBlock[]>(
+    props.blockArray
+  );
   const pageRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -21,17 +22,17 @@ const Page = (props: PageWithBlockArray) => {
         ("key" in e && e.key === "Enter") ||
         (e.type === "click" && e.target === e.currentTarget)
       ) {
-        //For now, the client doesn't get a new block until the server responds
-        //This is because the client doesn't know the id of the new block
-        //Creating a new block without id will require a way for id-less block and id-ed block to coexist
-        //or a way to update the id of the block after the server responds
-        //The block should do nothing regarding its id until then.
-        const newBlock = await addBlockToPage("", "", props.id);
+        const newBlock: ClientSideBlock = {
+          type: "",
+          content: "",
+          pageId: props.id,
+        };
 
-        //reactivate once newBlock is implmented in api
-        // setBlockArray((prev) => {
-        //   return [...prev, newBlock];
-        // });
+        setBlockArray((prev) => {
+          return [...prev, newBlock];
+        });
+
+        addBlockToPage("", props.id);
       }
     };
 

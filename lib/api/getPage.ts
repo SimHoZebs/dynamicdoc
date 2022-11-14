@@ -2,7 +2,7 @@ import { Endpoint } from "../../pages/api/page";
 import req from "../util/req";
 
 /**
- * Returns a single page with `blockArray`.
+ * Returns a page with `blockArray`.
  * @param userId 
  * @returns `null` if there are no pages.
  */

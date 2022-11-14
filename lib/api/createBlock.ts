@@ -1,9 +1,10 @@
 import { Prisma } from "@prisma/client";
+import { Endpoint } from "../../pages/api/page";
 import req from "../util/req";
 
-export default async function createBlock(type: string, content: string, pageId: number) {
+export default async function createBlock(content: string, pageId: number) {
   const blockCreateInput: Prisma.BlockCreateInput = {
-    type,
+    type: "string",
     content,
     page: {
       connect: {
@@ -12,8 +13,8 @@ export default async function createBlock(type: string, content: string, pageId:
     }
   };
 
-  return (await req({
-    method: "PATCH",
+  return (await req<Endpoint, "patch">({
+    method: "patch",
     url: "page",
     data: { blockCreateInput }
   })).data;

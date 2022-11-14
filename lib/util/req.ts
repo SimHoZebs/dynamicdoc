@@ -9,6 +9,7 @@ type Endpoint = {
 type AwaitedReturn<T extends (...args: any[]) => Promise<unknown>> = Awaited<ReturnType<T>>;
 
 interface Config<T extends Endpoint> extends AxiosRequestConfig<T["data"]> {
+  method: Method;
   params?: T["params"];
 };
 

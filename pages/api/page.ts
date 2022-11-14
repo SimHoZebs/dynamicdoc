@@ -12,6 +12,7 @@ type Params = Partial<{
 
 type Data = Partial<{
   pageCreateInput: Prisma.PageCreateInput;
+  blockCreateInput: Prisma.BlockCreateInput;
 }>;
 
 export type Endpoint = { handler: typeof handler; data: Data; params: Params; };
@@ -30,7 +31,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             authorId: parseInt(params.authorId)
           }
         });
-      } else {
+      }
+
+      else {
         if (!params.id) throw new Error("documentId does not exist");
         return await db.page.findFirst({
           where: {
@@ -48,6 +51,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       if (!data.pageCreateInput) throw new Error(`pageCreateInput is ${data.pageCreateInput}. There may be a typo in the data field of API function.`);
 
       return await db.page.create({ data: data.pageCreateInput });
+    },
+
+    patch: async () => {
+      if (!data.blockCreateInput) throw new Error(`blockCreateInput does not exist`);
+      return await db.block.create({ data: data.blockCreateInput });
     }
   };
 

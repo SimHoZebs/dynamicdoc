@@ -1,10 +1,10 @@
 import React, { useEffect, useRef } from "react";
-import { Block } from "@prisma/client";
+import { ClientSideBlock } from "../util/types";
 
 interface Props {
-  block: Block;
+  block: ClientSideBlock;
   index: number;
-  setBlockArray: React.Dispatch<React.SetStateAction<Block[]>>;
+  setBlockArray: React.Dispatch<React.SetStateAction<ClientSideBlock[]>>;
 }
 
 const Block = (props: Props) => {
