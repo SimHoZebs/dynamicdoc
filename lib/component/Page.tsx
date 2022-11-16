@@ -43,14 +43,17 @@ const Page = (props: PageWithBlockArray) => {
      * @returns
      */
     const arrowNavigation = (e: KeyboardEvent) => {
+      const focusedBlock = document.activeElement as HTMLInputElement | null;
+      if (!focusedBlock) return;
+
+      const blockArray = Array.from(pageRefEl.children) as HTMLInputElement[];
+      const currentIndex = blockArray.indexOf(focusedBlock);
       if (e.key === "ArrowUp" || e.key === "ArrowDown") {
         const map = { ArrowUp: -1, ArrowDown: 1 };
 
         const focusedBlock = document.activeElement as HTMLInputElement | null;
         if (!focusedBlock) return;
 
-        const blockArray = Array.from(pageRefEl.children) as HTMLInputElement[];
-        const currentIndex = blockArray.indexOf(focusedBlock);
         const nextIndex = currentIndex + map[e.key];
 
         if (nextIndex < 0) return;
@@ -58,36 +61,52 @@ const Page = (props: PageWithBlockArray) => {
           createBlock(e);
         }
         blockArray[currentIndex + map[e.key]].focus();
+      } else if (e.key === "Backspace") {
+        if (blockArray[currentIndex].value === "") {
+          setBlockArray((prev) => {
+            prev.splice(currentIndex, 1);
+            return [...prev];
+          });
+        }
       }
     };
 
-    pageRefEl.addEventListener("keypress", createBlock);
-    pageRefEl.addEventListener("keydown", arrowNavigation);
+    const keyPressEvent = (e: KeyboardEvent) => {
+      createBlock(e);
+      arrowNavigation(e);
+    };
+
+    pageRefEl.addEventListener("keydown", keyPressEvent);
     pageRefEl.addEventListener("click", createBlock);
 
     return () => {
-      pageRefEl.removeEventListener("keypress", createBlock);
-      pageRefEl.removeEventListener("keydown", arrowNavigation);
+      pageRefEl.removeEventListener("keydown", keyPressEvent);
       pageRefEl.removeEventListener("click", createBlock);
     };
   }, [blockArray.length, props.id]);
 
   return (
-    <div className="flex h-full w-full flex-col p-3" ref={pageRef}>
+    <div className="flex h-full w-full flex-col p-3">
+      {
+        //impl later
+      }
+      <button onClick={() => {}}>Submit changes to server</button>
       <input
         className="bg-inherit text-4xl"
         value={title}
         onChange={(e) => setTitle(e.currentTarget.value)}
       />
 
-      {blockArray.map((block, index) => (
-        <Block
-          key={index}
-          block={block}
-          index={index}
-          setBlockArray={setBlockArray}
-        />
-      ))}
+      <div className="flex w-full flex-col" ref={pageRef}>
+        {blockArray.map((block, index) => (
+          <Block
+            key={index}
+            block={block}
+            index={index}
+            setBlockArray={setBlockArray}
+          />
+        ))}
+      </div>
     </div>
   );
 };

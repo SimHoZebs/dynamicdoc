@@ -22,7 +22,7 @@ const Home = (
       {selectedPage ? (
         <Page {...selectedPage} />
       ) : (
-        <div className="p-3">no document</div>
+        <div className="flex w-full">no document</div>
       )}
     </div>
   );

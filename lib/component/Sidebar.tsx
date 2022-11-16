@@ -37,7 +37,7 @@ const Sidebar = (props: Props) => {
   }, [props.user, router, setPageArray, setUser]);
 
   return (
-    <div className="min-w-30 flex flex-col items-center justify-start gap-y-2 bg-dark-700 p-3">
+    <div className="flex min-w-[180px] flex-col items-center justify-start gap-y-2 bg-dark-700 p-3">
       <div>Username: {user.name}</div>
 
       <div className="flex flex-col">

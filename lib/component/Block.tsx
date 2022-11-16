@@ -20,7 +20,6 @@ const Block = (props: Props) => {
       className="bg-dark-800 outline-none"
       spellCheck={false}
       onChange={(e) => {
-        console.log(e.currentTarget.value);
         props.setBlockArray((prev) => {
           const newBlockArray = [...prev];
           newBlockArray[props.index].content = e.target.value;
