@@ -4,6 +4,7 @@ import addBlockToPage from "../api/createBlock";
 import { ClientSideBlock, PageWithBlockArray } from "../util/types";
 
 const Page = (props: PageWithBlockArray) => {
+  const [title, setTitle] = useState(props.title);
   const [blockArray, setBlockArray] = useState<ClientSideBlock[]>(
     props.blockArray
   );
@@ -73,7 +74,11 @@ const Page = (props: PageWithBlockArray) => {
 
   return (
     <div className="flex h-full w-full flex-col p-3" ref={pageRef}>
-      <input className="bg-inherit text-4xl" value={props.title} />
+      <input
+        className="bg-inherit text-4xl"
+        value={title}
+        onChange={(e) => setTitle(e.currentTarget.value)}
+      />
 
       {blockArray.map((block, index) => (
         <Block
