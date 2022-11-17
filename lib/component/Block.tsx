@@ -5,6 +5,7 @@ interface Props {
   block: ClientSideBlock;
   index: number;
   setBlockArray: React.Dispatch<React.SetStateAction<ClientSideBlock[]>>;
+  setFocusedBlockIndex: React.Dispatch<React.SetStateAction<number>>;
 }
 
 const Block = (props: Props) => {
@@ -15,19 +16,26 @@ const Block = (props: Props) => {
   }, []);
 
   return (
-    <input
-      ref={blockRef}
-      className="bg-dark-800 outline-none"
-      spellCheck={false}
-      onChange={(e) => {
-        props.setBlockArray((prev) => {
-          const newBlockArray = [...prev];
-          newBlockArray[props.index].content = e.target.value;
-          return newBlockArray;
-        });
-      }}
-      value={props.block.content}
-    />
+    <div className="flex w-full gap-x-4">
+      <div className="">{props.index}</div>
+      <input
+        ref={blockRef}
+        onFocus={() => {
+          console.log("focused", props.index);
+          props.setFocusedBlockIndex(props.index);
+        }}
+        className="w-full bg-dark-800 outline-none"
+        spellCheck={false}
+        onChange={(e) => {
+          props.setBlockArray((prev) => {
+            const newBlockArray = [...prev];
+            newBlockArray[props.index].content = e.target.value;
+            return newBlockArray;
+          });
+        }}
+        value={props.block.content}
+      />
+    </div>
   );
 };
 

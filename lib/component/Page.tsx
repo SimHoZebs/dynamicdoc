@@ -9,6 +9,7 @@ const Page = (props: PageWithBlockArray) => {
     props.blockArray
   );
   const pageRef = useRef<HTMLDivElement>(null);
+  const [focusedBlockIndex, setFocusedBlockIndex] = useState<number>(0);
 
   useEffect(() => {
     if (!pageRef.current) return;
@@ -19,6 +20,8 @@ const Page = (props: PageWithBlockArray) => {
      * Runs every time the user presses `enter` or clicks on the document outside of a block.
      */
     const createBlock = async (e: KeyboardEvent | MouseEvent) => {
+      console.log("creating new block");
+
       if (
         ("key" in e && e.key === "Enter") ||
         (e.type === "click" && e.target === e.currentTarget)
@@ -43,47 +46,59 @@ const Page = (props: PageWithBlockArray) => {
      * @returns
      */
     const arrowNavigation = (e: KeyboardEvent) => {
+      // const focusedBlock = document.activeElement as HTMLInputElement | null;
+      // if (!focusedBlock) return;
+      // const blockArray = Array.from(pageRefEl.children) as HTMLInputElement[];
+      // const currentIndex = blockArray.indexOf(focusedBlock);
+      // if (e.key === "ArrowUp" || e.key === "ArrowDown") {
+      //   const map = { ArrowUp: -1, ArrowDown: 1 };
+      //   const focusedBlock = document.activeElement as HTMLInputElement | null;
+      //   if (!focusedBlock) return;
+      //   const nextIndex = currentIndex + map[e.key];
+      //   if (nextIndex < 0) return;
+      //   else if (nextIndex >= blockArray.length) {
+      //     createBlock(e);
+      //   }
+      //   blockArray[currentIndex + map[e.key]].focus();
+      // }
+    };
+
+    const deleteBlock = (e: KeyboardEvent) => {
       const focusedBlock = document.activeElement as HTMLInputElement | null;
       if (!focusedBlock) return;
 
       const blockArray = Array.from(pageRefEl.children) as HTMLInputElement[];
-      const currentIndex = blockArray.indexOf(focusedBlock);
-      if (e.key === "ArrowUp" || e.key === "ArrowDown") {
-        const map = { ArrowUp: -1, ArrowDown: 1 };
 
-        const focusedBlock = document.activeElement as HTMLInputElement | null;
-        if (!focusedBlock) return;
+      if (e.key === "Backspace") {
+        setBlockArray((prev) => {
+          console.log("focusedBLockIndex", focusedBlockIndex);
+          console.log(prev);
 
-        const nextIndex = currentIndex + map[e.key];
+          if (prev[focusedBlockIndex].content === "") {
+            console.log("content empty");
 
-        if (nextIndex < 0) return;
-        else if (nextIndex >= blockArray.length) {
-          createBlock(e);
-        }
-        blockArray[currentIndex + map[e.key]].focus();
-      } else if (e.key === "Backspace") {
-        if (blockArray[currentIndex].value === "") {
-          setBlockArray((prev) => {
-            prev.splice(currentIndex, 1);
-            return [...prev];
-          });
+            prev.splice(focusedBlockIndex, 1);
+          }
+          return [...prev];
+        });
+
+        if (blockArray.length === focusedBlockIndex + 1) {
+          blockArray[focusedBlockIndex - 1].focus();
         }
       }
     };
 
     const keyPressEvent = (e: KeyboardEvent) => {
-      createBlock(e);
       arrowNavigation(e);
+      deleteBlock(e);
     };
 
     pageRefEl.addEventListener("keydown", keyPressEvent);
-    pageRefEl.addEventListener("click", createBlock);
 
     return () => {
       pageRefEl.removeEventListener("keydown", keyPressEvent);
-      pageRefEl.removeEventListener("click", createBlock);
     };
-  }, [blockArray.length, props.id]);
+  }, [focusedBlockIndex, props.id]);
 
   return (
     <div className="flex h-full w-full flex-col p-3">
@@ -100,6 +115,7 @@ const Page = (props: PageWithBlockArray) => {
       <div className="flex w-full flex-col" ref={pageRef}>
         {blockArray.map((block, index) => (
           <Block
+            setFocusedBlockIndex={setFocusedBlockIndex}
             key={index}
             block={block}
             index={index}
