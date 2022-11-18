@@ -19,25 +19,19 @@ const Page = (props: PageWithBlockArray) => {
      * Creates a new block and sets the cursor focus to the new block.
      * Runs every time the user presses `enter` or clicks on the document outside of a block.
      */
-    const createBlock = async (e: KeyboardEvent | MouseEvent) => {
+    const createBlock = async () => {
       console.log("creating new block");
+      const newBlock: ClientSideBlock = {
+        type: "",
+        content: "",
+        pageId: props.id,
+      };
 
-      if (
-        ("key" in e && e.key === "Enter") ||
-        (e.type === "click" && e.target === e.currentTarget)
-      ) {
-        const newBlock: ClientSideBlock = {
-          type: "",
-          content: "",
-          pageId: props.id,
-        };
+      setBlockArray((prev) => {
+        return [...prev, newBlock];
+      });
 
-        setBlockArray((prev) => {
-          return [...prev, newBlock];
-        });
-
-        addBlockToPage("", props.id);
-      }
+      addBlockToPage("", props.id);
     };
 
     /**
@@ -71,16 +65,22 @@ const Page = (props: PageWithBlockArray) => {
         pageRefEl.children
       ) as HTMLInputElement[];
 
-      const yeet = [...blockArray];
-      yeet.splice(focusedBlockIndex, 1);
-      setBlockArray([...yeet]);
+      //indirectly accessing blockArray as blockArray is intended to be read-only
+      const blockArrayRef = [...blockArray];
+
+      //This is because the actual effect of "Backspace" only takes affect after the block is deleted, deleting a character from the block before it.
+      blockArrayRef[focusedBlockIndex - 1].content += " ";
+      blockArrayRef.splice(focusedBlockIndex, 1);
+      setBlockArray([...blockArrayRef]);
       pageChildArray[focusedBlockIndex - 1].querySelector("input")?.focus();
     };
 
     const keyPressEvent = (e: KeyboardEvent) => {
       arrowNavigation(e);
-      if (
-        e.key === "Backspace" &&
+      if (e.key === "Enter") {
+        createBlock();
+      } else if (
+        (e.key === "Shift" || e.key === "Backspace") &&
         blockArray[focusedBlockIndex].content === ""
       ) {
         deleteBlock();
