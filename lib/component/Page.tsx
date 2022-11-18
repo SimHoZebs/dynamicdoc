@@ -67,23 +67,20 @@ const Page = (props: PageWithBlockArray) => {
       const focusedBlock = document.activeElement as HTMLInputElement | null;
       if (!focusedBlock) return;
 
-      const blockArray = Array.from(pageRefEl.children) as HTMLInputElement[];
+      const pageChildArray = Array.from(
+        pageRefEl.children
+      ) as HTMLInputElement[];
 
       if (e.key === "Backspace") {
-        setBlockArray((prev) => {
-          console.log("focusedBLockIndex", focusedBlockIndex);
-          console.log(prev);
+        if (blockArray[focusedBlockIndex].content === "") {
+          blockArray.splice(focusedBlockIndex, 1);
+        }
 
-          if (prev[focusedBlockIndex].content === "") {
-            console.log("content empty");
+        setBlockArray([...blockArray]);
 
-            prev.splice(focusedBlockIndex, 1);
-          }
-          return [...prev];
-        });
-
-        if (blockArray.length === focusedBlockIndex + 1) {
-          blockArray[focusedBlockIndex - 1].focus();
+        if (blockArray.length === focusedBlockIndex) {
+          console.log("last block");
+          pageChildArray[focusedBlockIndex - 2].focus();
         }
       }
     };
@@ -98,7 +95,7 @@ const Page = (props: PageWithBlockArray) => {
     return () => {
       pageRefEl.removeEventListener("keydown", keyPressEvent);
     };
-  }, [focusedBlockIndex, props.id]);
+  }, [focusedBlockIndex, props.id, blockArray]);
 
   return (
     <div className="flex h-full w-full flex-col p-3">
