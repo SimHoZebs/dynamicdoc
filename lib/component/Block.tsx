@@ -21,12 +21,12 @@ const Block = (props: Props) => {
       <input
         ref={blockRef}
         onFocus={() => {
-          console.log("focused", props.index);
           props.setFocusedBlockIndex(props.index);
         }}
         className="w-full bg-dark-800 outline-none"
         spellCheck={false}
         onChange={(e) => {
+          // this for some reason triggers when the block in front of it is deleted
           props.setBlockArray((prev) => {
             const newBlockArray = [...prev];
             newBlockArray[props.index].content = e.target.value;

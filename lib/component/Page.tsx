@@ -63,7 +63,7 @@ const Page = (props: PageWithBlockArray) => {
       // }
     };
 
-    const deleteBlock = (e: KeyboardEvent) => {
+    const deleteBlock = () => {
       const focusedBlock = document.activeElement as HTMLInputElement | null;
       if (!focusedBlock) return;
 
@@ -71,23 +71,20 @@ const Page = (props: PageWithBlockArray) => {
         pageRefEl.children
       ) as HTMLInputElement[];
 
-      if (e.key === "Backspace") {
-        if (blockArray[focusedBlockIndex].content === "") {
-          blockArray.splice(focusedBlockIndex, 1);
-        }
-
-        setBlockArray([...blockArray]);
-
-        if (blockArray.length === focusedBlockIndex) {
-          console.log("last block");
-          pageChildArray[focusedBlockIndex - 2].focus();
-        }
-      }
+      const yeet = [...blockArray];
+      yeet.splice(focusedBlockIndex, 1);
+      setBlockArray([...yeet]);
+      pageChildArray[focusedBlockIndex - 1].querySelector("input")?.focus();
     };
 
     const keyPressEvent = (e: KeyboardEvent) => {
       arrowNavigation(e);
-      deleteBlock(e);
+      if (
+        e.key === "Backspace" &&
+        blockArray[focusedBlockIndex].content === ""
+      ) {
+        deleteBlock();
+      }
     };
 
     pageRefEl.addEventListener("keydown", keyPressEvent);
@@ -95,7 +92,7 @@ const Page = (props: PageWithBlockArray) => {
     return () => {
       pageRefEl.removeEventListener("keydown", keyPressEvent);
     };
-  }, [focusedBlockIndex, props.id, blockArray]);
+  }, [blockArray, focusedBlockIndex, props.id]);
 
   return (
     <div className="flex h-full w-full flex-col p-3">
