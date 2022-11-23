@@ -39,22 +39,21 @@ const Page = (props: PageWithBlockArray) => {
      * @param e
      * @returns
      */
-    const arrowNavigation = (e: KeyboardEvent) => {
-      // const focusedBlock = document.activeElement as HTMLInputElement | null;
-      // if (!focusedBlock) return;
-      // const blockArray = Array.from(pageRefEl.children) as HTMLInputElement[];
-      // const currentIndex = blockArray.indexOf(focusedBlock);
-      // if (e.key === "ArrowUp" || e.key === "ArrowDown") {
-      //   const map = { ArrowUp: -1, ArrowDown: 1 };
-      //   const focusedBlock = document.activeElement as HTMLInputElement | null;
-      //   if (!focusedBlock) return;
-      //   const nextIndex = currentIndex + map[e.key];
-      //   if (nextIndex < 0) return;
-      //   else if (nextIndex >= blockArray.length) {
-      //     createBlock(e);
-      //   }
-      //   blockArray[currentIndex + map[e.key]].focus();
-      // }
+    const arrowNavigation = (direction: number) => {
+      const focusedBlock = document.activeElement as HTMLInputElement | null;
+      if (!focusedBlock) return;
+      const blockArrayT = Array.from(pageRefEl.children) as HTMLInputElement[];
+
+      const nextIndex = focusedBlockIndex + direction;
+      if (nextIndex < 0) return;
+      else if (nextIndex >= blockArray.length) {
+        createBlock();
+      } else {
+        const textbox = blockArrayT[nextIndex].querySelector("input");
+        if (!textbox) return;
+
+        textbox.focus();
+      }
     };
 
     const deleteBlock = () => {
@@ -76,14 +75,18 @@ const Page = (props: PageWithBlockArray) => {
     };
 
     const keyPressEvent = (e: KeyboardEvent) => {
-      arrowNavigation(e);
-      if (e.key === "Enter") {
-        createBlock();
-      } else if (
-        (e.key === "Shift" || e.key === "Backspace") &&
-        blockArray[focusedBlockIndex].content === ""
-      ) {
-        deleteBlock();
+      switch (e.key) {
+        case "ArrowUp":
+          arrowNavigation(-1);
+          break;
+        case "ArrowDown":
+          arrowNavigation(1);
+          break;
+        case "Backspace":
+          if (blockArray[focusedBlockIndex].content === "") {
+            deleteBlock();
+          }
+          break;
       }
     };
 
