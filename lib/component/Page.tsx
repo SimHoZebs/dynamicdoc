@@ -90,10 +90,18 @@ const Page = (props: PageWithBlockArray) => {
       }
     };
 
+    const clickEvent = (e: MouseEvent) => {
+      if (blockArray[focusedBlockIndex].content !== "") {
+        createBlock();
+      }
+    };
+
     pageRefEl.addEventListener("keydown", keyPressEvent);
+    pageRefEl.addEventListener("click", clickEvent);
 
     return () => {
       pageRefEl.removeEventListener("keydown", keyPressEvent);
+      pageRefEl.removeEventListener("click", clickEvent);
     };
   }, [blockArray, focusedBlockIndex, props.id]);
 
@@ -109,7 +117,7 @@ const Page = (props: PageWithBlockArray) => {
         onChange={(e) => setTitle(e.currentTarget.value)}
       />
 
-      <div className="flex w-full flex-col" ref={pageRef}>
+      <div className="flex h-full w-full flex-col" ref={pageRef}>
         {blockArray.map((block, index) => (
           <Block
             setFocusedBlockIndex={setFocusedBlockIndex}
