@@ -6,7 +6,7 @@ import { useState } from "react";
 import Sidebar from "../lib/component/Sidebar";
 import Page from "../lib/component/Page";
 import { PageWithBlockArray } from "../lib/util/types";
-import getUser from "../lib/api/getUser";
+import { caller } from "../server/routers/_app";
 
 const Home = (
   props: InferGetServerSidePropsType<typeof getServerSideProps>
@@ -42,7 +42,7 @@ export const getServerSideProps = async (
     };
   }
 
-  const user = await getUser(parseInt(userId as string));
+  const user = await caller.getUser(parseInt(userId as string));
   return {
     props: { user },
   };

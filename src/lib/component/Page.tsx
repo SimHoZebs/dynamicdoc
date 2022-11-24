@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import Block from "./Block";
-import addBlockToPage from "../api/createBlock";
 import { ClientSideBlock, PageWithBlockArray } from "../util/types";
+import { trpc } from "../util/trpc";
 
 const Page = (props: PageWithBlockArray) => {
   const [title, setTitle] = useState(props.title);
@@ -10,6 +10,7 @@ const Page = (props: PageWithBlockArray) => {
   );
   const pageRef = useRef<HTMLDivElement>(null);
   const [focusedBlockIndex, setFocusedBlockIndex] = useState<number>(0);
+  const createBlockOnPage = trpc.createBlock.useMutation();
 
   useEffect(() => {
     if (!pageRef.current) return;
@@ -31,7 +32,11 @@ const Page = (props: PageWithBlockArray) => {
         return [...prev, newBlock];
       });
 
-      addBlockToPage("", props.id);
+      createBlockOnPage.mutate({
+        type: "text",
+        content: "",
+        pageId: props.id,
+      });
     };
 
     /**
@@ -103,14 +108,14 @@ const Page = (props: PageWithBlockArray) => {
       pageRefEl.removeEventListener("keydown", keyPressEvent);
       pageRefEl.removeEventListener("click", clickEvent);
     };
-  }, [blockArray, focusedBlockIndex, props.id]);
+  }, [createBlockOnPage, blockArray, focusedBlockIndex, props.id]);
 
   return (
     <div className="flex h-full w-full flex-col p-3">
       {
         //impl later
       }
-      <button onClick={() => {}}>Submit changes to server</button>
+      <button onClick={async () => {}}>Test</button>
       <input
         className="bg-inherit text-4xl"
         value={title}

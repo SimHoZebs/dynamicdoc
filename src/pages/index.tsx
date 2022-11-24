@@ -1,16 +1,17 @@
 import { useRouter } from "next/router";
 import React from "react";
-import createUser from "../lib/api/createUser";
-import getUser from "../lib/api/getUser";
+import { trpc } from "../lib/util/trpc";
 
 const Home = () => {
   const router = useRouter();
+  const util = trpc.useContext();
+  const createUser = trpc.createUser.useMutation();
 
   return (
     <div>
       <button
         onClick={async () => {
-          const user = await createUser("test");
+          const user = await createUser.mutateAsync({ name: "test" });
           localStorage.setItem("userId", user.id.toString());
           router.push(`/${user.id}`);
         }}
@@ -21,16 +22,11 @@ const Home = () => {
       <button
         onClick={async () => {
           const savedUserId = localStorage.getItem("userId");
-          if (savedUserId) {
-            const user = await getUser(parseInt(savedUserId));
+          if (!savedUserId) return;
 
-            if (!user) {
-              console.log(
-                `user with ${savedUserId} not found, try creating a new user`
-              );
-              return;
-            }
+          const user = await util.getUser.fetch(parseInt(savedUserId));
 
+          if (user) {
             router.push(`/${savedUserId}`);
           } else {
             console.log("User id not found, try creating new user");
