@@ -96,7 +96,10 @@ const Page = (props: PageWithBlockArray) => {
     };
 
     const clickEvent = (e: MouseEvent) => {
-      if (blockArray[focusedBlockIndex].content !== "") {
+      if (
+        blockArray.length === 0 ||
+        blockArray[focusedBlockIndex].content !== ""
+      ) {
         createBlock();
       }
     };
