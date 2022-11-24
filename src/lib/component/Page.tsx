@@ -10,7 +10,7 @@ const Page = (props: PageWithBlockArray) => {
   );
   const pageRef = useRef<HTMLDivElement>(null);
   const [focusedBlockIndex, setFocusedBlockIndex] = useState<number>(0);
-  const createBlockOnPage = trpc.createBlock.useMutation();
+  const createBlockOnPage = trpc.block.create.useMutation();
 
   useEffect(() => {
     if (!pageRef.current) return;

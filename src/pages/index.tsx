@@ -5,7 +5,7 @@ import { trpc } from "../lib/util/trpc";
 const Home = () => {
   const router = useRouter();
   const util = trpc.useContext();
-  const createUser = trpc.createUser.useMutation();
+  const createUser = trpc.user.create.useMutation();
 
   return (
     <div>
@@ -24,7 +24,7 @@ const Home = () => {
           const savedUserId = localStorage.getItem("userId");
           if (!savedUserId) return;
 
-          const user = await util.getUser.fetch(parseInt(savedUserId));
+          const user = await util.user.get.fetch(parseInt(savedUserId));
 
           if (user) {
             router.push(`/${savedUserId}`);

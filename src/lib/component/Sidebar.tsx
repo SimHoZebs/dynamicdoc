@@ -16,10 +16,10 @@ const Sidebar = (props: Props) => {
   const user = useStoreState((state) => state.user);
   const setUser = useStoreActions((actions) => actions.setUser);
   const router = useRouter();
-  const createPage = trpc.createPage.useMutation();
+  const createPage = trpc.page.create.useMutation();
   const util = trpc.useContext();
   const { data: pageArray, refetch: refetchPageArray } =
-    trpc.getAllPages.useQuery(user.id);
+    trpc.page.getAll.useQuery(user.id);
 
   useEffect(() => {
     async function test() {
@@ -44,7 +44,7 @@ const Sidebar = (props: Props) => {
                 className="rounded p-1 hover:bg-dark-200"
                 key={index}
                 onClick={async () => {
-                  const selectedPage = await util.getPage.fetch({
+                  const selectedPage = await util.page.get.fetch({
                     id: document.id,
                     authorId: user.id,
                   });
