@@ -42,7 +42,7 @@ export const getServerSideProps = async (
     };
   }
 
-  const user = await caller.getUser(parseInt(userId as string));
+  const user = await caller.user.get(parseInt(userId as string));
   return {
     props: { user },
   };

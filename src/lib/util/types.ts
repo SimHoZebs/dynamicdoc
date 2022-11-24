@@ -9,6 +9,4 @@ export type PageWithBlockArray = Prisma.PageGetPayload<{
   };
 }>;
 
-export type BackEndParams<T> = { [K in keyof T]: string };
-
 export type ClientSideBlock = Omit<Block, "id"> | Block;
