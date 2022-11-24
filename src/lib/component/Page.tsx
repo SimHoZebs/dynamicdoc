@@ -92,6 +92,8 @@ const Page = (props: PageWithBlockArray) => {
             deleteBlock();
           }
           break;
+        case "Enter":
+          createBlock();
       }
     };
 
