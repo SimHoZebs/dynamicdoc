@@ -11,6 +11,7 @@ const Page = (props: PageWithBlockArray) => {
   const pageRef = useRef<HTMLDivElement>(null);
   const [focusedBlockIndex, setFocusedBlockIndex] = useState<number>(0);
   const createBlockOnPage = trpc.block.create.useMutation();
+  const deleteBlockOnPage = trpc.block.del.useMutation();
 
   useEffect(() => {
     if (!pageRef.current) return;
@@ -61,22 +62,42 @@ const Page = (props: PageWithBlockArray) => {
       }
     };
 
+    /**
+     * Finds the index of the focused block and deletes it from the block array.
+     * Deletes the block from the database.
+     */
     const deleteBlock = () => {
-      const focusedBlock = document.activeElement as HTMLInputElement | null;
-      if (!focusedBlock) return;
+      if (!document.activeElement || blockArray.length === 0) return;
 
-      const pageChildArray = Array.from(
-        pageRefEl.children
-      ) as HTMLInputElement[];
+      const focusedBlock = blockArray[focusedBlockIndex];
+      console.log("focused block", focusedBlock);
+
+      if (focusedBlock.content !== "") return;
 
       //indirectly accessing blockArray as blockArray is intended to be read-only
       const blockArrayRef = [...blockArray];
 
-      //This is because the actual effect of "Backspace" only takes affect after the block is deleted, deleting a character from the block before it.
-      blockArrayRef[focusedBlockIndex - 1].content += " ";
+      //This is because the actual effect of "Backspace" only takes affect after the block is deleted, deleting a character from the next focused block.
+      if (focusedBlockIndex !== 0) {
+        blockArray[focusedBlockIndex - 1].content += " ";
+      } else {
+        blockArray[focusedBlockIndex + 1].content += " ";
+      }
       blockArrayRef.splice(focusedBlockIndex, 1);
       setBlockArray([...blockArrayRef]);
-      pageChildArray[focusedBlockIndex - 1].querySelector("input")?.focus();
+
+      if ("id" in focusedBlock) {
+        deleteBlockOnPage.mutate(focusedBlock.id);
+      } else {
+        console.log("block not yet created on server");
+      }
+
+      //set focus to the previous block
+      if (focusedBlockIndex !== 0) {
+        pageRefEl.children[focusedBlockIndex - 1]
+          .querySelector("input")
+          ?.focus();
+      }
     };
 
     const keyPressEvent = (e: KeyboardEvent) => {
@@ -88,9 +109,7 @@ const Page = (props: PageWithBlockArray) => {
           arrowNavigation(1);
           break;
         case "Backspace":
-          if (blockArray[focusedBlockIndex].content === "") {
-            deleteBlock();
-          }
+          deleteBlock();
           break;
         case "Enter":
           createBlock();
@@ -99,8 +118,9 @@ const Page = (props: PageWithBlockArray) => {
 
     const clickEvent = (e: MouseEvent) => {
       if (
-        blockArray.length === 0 ||
-        blockArray[focusedBlockIndex].content !== ""
+        e.target === pageRefEl &&
+        (blockArray.length === 0 ||
+          blockArray[blockArray.length - 1].content !== "")
       ) {
         createBlock();
       }
@@ -113,14 +133,16 @@ const Page = (props: PageWithBlockArray) => {
       pageRefEl.removeEventListener("keydown", keyPressEvent);
       pageRefEl.removeEventListener("click", clickEvent);
     };
-  }, [createBlockOnPage, blockArray, focusedBlockIndex, props.id]);
+  }, [
+    blockArray,
+    createBlockOnPage,
+    deleteBlockOnPage,
+    focusedBlockIndex,
+    props.id,
+  ]);
 
   return (
     <div className="flex h-full w-full flex-col p-3">
-      {
-        //impl later
-      }
-      <button onClick={async () => {}}>Test</button>
       <input
         className="bg-inherit text-4xl"
         value={title}

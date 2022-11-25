@@ -14,6 +14,16 @@ const blockRouter = router({
       return db.block.create({
         data: input
       });
+    }),
+
+  del: procedure
+    .input(z.number())
+    .mutation(({ input }) => {
+      return db.block.delete({
+        where: {
+          id: input
+        }
+      });
     })
 });
 
