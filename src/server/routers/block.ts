@@ -3,6 +3,16 @@ import db from '../../lib/util/db';
 import { procedure, router } from '../trpc';
 
 const blockRouter = router({
+  get: procedure
+    .input(z.number())
+    .mutation(({ input }) => {
+      return db.block.findFirst({
+        where: {
+          id: input
+        }
+      });
+    }),
+
   create: procedure
     .input(
       z.object({

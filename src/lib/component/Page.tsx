@@ -33,10 +33,15 @@ const Page = (props: PageWithBlockArray) => {
         return [...prev, newBlock];
       });
 
-      createBlockOnPage.mutate({
+      const createdBlock = await createBlockOnPage.mutateAsync({
         type: "text",
         content: "",
         pageId: props.id,
+      });
+
+      setBlockArray((prev) => {
+        prev[prev.length - 1] = createdBlock;
+        return prev;
       });
     };
 
