@@ -26,6 +26,22 @@ const blockRouter = router({
       });
     }),
 
+  update: procedure
+    .input(z.object({
+      id: z.number(),
+      content: z.string()
+    }))
+    .mutation(({ input }) => {
+      console.log("updating block");
+
+      return db.block.update({
+        where: {
+          id: input.id
+        },
+        data: { content: input.content }
+      });
+    }),
+
   del: procedure
     .input(z.number())
     .mutation(({ input }) => {

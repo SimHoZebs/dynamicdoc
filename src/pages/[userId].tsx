@@ -34,7 +34,6 @@ export const getServerSideProps = async (
   const userId = context.query.userId;
   //query is randomly "favicon.ico" sometimes?
   if (!userId || userId === "favicon.ico") {
-    console.log("userId is", userId);
     return {
       props: {
         user: null,

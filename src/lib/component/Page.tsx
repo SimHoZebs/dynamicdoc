@@ -22,7 +22,6 @@ const Page = (props: PageWithBlockArray) => {
      * Runs every time the user presses `enter` or clicks on the document outside of a block.
      */
     const createBlock = async () => {
-      console.log("creating new block");
       const newBlock: ClientSideBlock = {
         type: "",
         content: "",
@@ -75,7 +74,6 @@ const Page = (props: PageWithBlockArray) => {
       if (!document.activeElement || blockArray.length === 0) return;
 
       const focusedBlock = blockArray[focusedBlockIndex];
-      console.log("focused block", focusedBlock);
 
       if (focusedBlock.content !== "") return;
 
