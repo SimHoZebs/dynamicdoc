@@ -10,6 +10,7 @@ const Page = (props: PageWithBlockArray) => {
   );
   const pageRef = useRef<HTMLDivElement>(null);
   const [focusedBlockIndex, setFocusedBlockIndex] = useState<number>(0);
+  const [caretPosition, setCaretPosition] = useState<number>(0);
   const createBlockOnPage = trpc.block.create.useMutation();
   const deleteBlockOnPage = trpc.block.del.useMutation();
 
@@ -49,7 +50,7 @@ const Page = (props: PageWithBlockArray) => {
      * @param e
      * @returns
      */
-    const arrowNavigation = (direction: number) => {
+    const lineNavigation = (direction: number) => {
       const focusedBlock = document.activeElement as HTMLInputElement | null;
       if (!focusedBlock) return;
       const blockArrayT = Array.from(pageRefEl.children) as HTMLInputElement[];
@@ -59,10 +60,11 @@ const Page = (props: PageWithBlockArray) => {
       else if (nextIndex >= blockArray.length) {
         createBlock();
       } else {
-        const textbox = blockArrayT[nextIndex].querySelector("input");
-        if (!textbox) return;
+        const inputEl = blockArrayT[nextIndex].querySelector("input");
+        if (!inputEl) return;
 
-        textbox.focus();
+        inputEl.focus();
+        inputEl.setSelectionRange(caretPosition, caretPosition);
       }
     };
 
@@ -104,16 +106,34 @@ const Page = (props: PageWithBlockArray) => {
     };
 
     const keyPressEvent = (e: KeyboardEvent) => {
+      //For some reason, the keypress event's default behavior triggers after running the function, requiring most of them to be negated.
       switch (e.key) {
         case "ArrowUp":
-          arrowNavigation(-1);
+          e.preventDefault();
+          lineNavigation(-1);
           break;
+
         case "ArrowDown":
-          arrowNavigation(1);
+          e.preventDefault();
+          lineNavigation(1);
           break;
+
+        case "ArrowLeft":
+          setCaretPosition((prev) => (prev === 0 ? 0 : prev - 1));
+          break;
+
+        case "ArrowRight":
+          setCaretPosition((prev) =>
+            prev === (document.activeElement as HTMLInputElement).value.length
+              ? prev
+              : prev + 1
+          );
+          break;
+
         case "Backspace":
           deleteBlock();
           break;
+
         case "Enter":
           createBlock();
       }
@@ -138,6 +158,7 @@ const Page = (props: PageWithBlockArray) => {
     };
   }, [
     blockArray,
+    caretPosition,
     createBlockOnPage,
     deleteBlockOnPage,
     focusedBlockIndex,
@@ -155,6 +176,7 @@ const Page = (props: PageWithBlockArray) => {
       <div className="flex h-full w-full flex-col" ref={pageRef}>
         {blockArray.map((block, index) => (
           <Block
+            setCaretPosition={setCaretPosition}
             setFocusedBlockIndex={setFocusedBlockIndex}
             key={index}
             block={block}

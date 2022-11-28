@@ -8,6 +8,7 @@ interface Props {
   index: number;
   setBlockArray: React.Dispatch<React.SetStateAction<ClientSideBlock[]>>;
   setFocusedBlockIndex: React.Dispatch<React.SetStateAction<number>>;
+  setCaretPosition: React.Dispatch<React.SetStateAction<number>>;
 }
 
 const Block = (props: Props) => {
@@ -38,6 +39,12 @@ const Block = (props: Props) => {
         ref={blockRef}
         onFocus={() => {
           props.setFocusedBlockIndex(props.index);
+        }}
+        onClick={() => {
+          const caretPosition = blockRef.current?.selectionStart;
+
+          if (caretPosition === undefined || caretPosition === null) return;
+          props.setCaretPosition(caretPosition);
         }}
         className="w-full bg-dark-800 outline-none"
         spellCheck={false}
