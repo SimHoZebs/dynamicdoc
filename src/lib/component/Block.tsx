@@ -37,8 +37,13 @@ const Block = (props: Props) => {
       <div className="">{props.index}</div>
       <input
         ref={blockRef}
-        onFocus={() => {
+        onFocus={(e) => {
           props.setFocusedBlockIndex(props.index);
+
+          const blockTextLength = e.currentTarget.value.length;
+          props.setCaretPosition((prev) =>
+            blockTextLength < prev ? blockTextLength : prev
+          );
         }}
         onClick={() => {
           const caretPosition = blockRef.current?.selectionStart;
