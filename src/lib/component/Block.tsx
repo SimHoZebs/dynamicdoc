@@ -16,6 +16,7 @@ const Block = (props: Props) => {
   const updateBlock = trpc.block.update.useMutation();
 
   //useCallback saves the function 'debounce'. when this function is called, it will use the same debounce function, accessing the same 'timer' variable.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const updateBlockOnServer = useCallback(
     debounce(() => {
       if (!("id" in props.block)) return;
