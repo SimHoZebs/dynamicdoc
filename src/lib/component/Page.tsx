@@ -40,8 +40,6 @@ const Page = (props: PageWithBlockArray) => {
    * Handles arrow key navigation. Selects a child element within page and iterates through them based on arrow key presses.
    */
   const lineNavigation = (direction: number, el: HTMLDivElement) => {
-    if (!document.activeElement) return;
-
     const nextIndex = focusedBlockIndex + direction;
     if (nextIndex < 0) return;
     else if (nextIndex >= blockArray.length) {
@@ -59,34 +57,29 @@ const Page = (props: PageWithBlockArray) => {
    * Finds the index of the focused block and deletes it from the block array.
    * Deletes the block from the database.
    */
-  const deleteBlock = (el: HTMLDivElement) => {
-    if (!document.activeElement || blockArray.length === 0) return;
-
+  const deleteBlock = (e: React.KeyboardEvent<HTMLDivElement>) => {
     const focusedBlock = blockArray[focusedBlockIndex];
 
     if (focusedBlock.content !== "") return;
 
-    //indirectly accessing blockArray as blockArray is intended to be read-only
-    const blockArrayRef = [...blockArray];
+    e.preventDefault();
 
-    //This is because the actual effect of "Backspace" only takes affect after the block is deleted, deleting a character from the next focused block.
+    setBlockArray((prev) => {
+      prev.splice(focusedBlockIndex, 1);
+      return prev;
+    });
+
+    //set focus to the previous block
     if (focusedBlockIndex !== 0) {
-      blockArray[focusedBlockIndex - 1].content += " ";
-    } else {
-      blockArray[focusedBlockIndex + 1].content += " ";
+      e.currentTarget.children[focusedBlockIndex - 1]
+        .querySelector("input")
+        ?.focus();
     }
-    blockArrayRef.splice(focusedBlockIndex, 1);
-    setBlockArray([...blockArrayRef]);
 
     if ("id" in focusedBlock) {
       deleteBlockOnPage.mutate(focusedBlock.id);
     } else {
       console.log("block not yet created on server");
-    }
-
-    //set focus to the previous block
-    if (focusedBlockIndex !== 0) {
-      el.children[focusedBlockIndex - 1].querySelector("input")?.focus();
     }
   };
 
@@ -110,14 +103,12 @@ const Page = (props: PageWithBlockArray) => {
 
       case "ArrowRight":
         setCaretPosition((prev) =>
-          prev === (document.activeElement as HTMLInputElement).value.length
-            ? prev
-            : prev + 1
+          prev === (e.target as HTMLInputElement).value.length ? prev : prev + 1
         );
         break;
 
       case "Backspace":
-        deleteBlock(el);
+        deleteBlock(e);
         break;
 
       case "Enter":
@@ -125,14 +116,15 @@ const Page = (props: PageWithBlockArray) => {
     }
   };
 
-  const clickEvent = () => {
+  const clickEvent = (e: React.MouseEvent<HTMLDivElement>) => {
     if (
-      blockArray.length === 0 ||
+      !(e.target instanceof HTMLInputElement) &&
       blockArray[blockArray.length - 1].content !== ""
     ) {
       createBlock();
     }
   };
+
   return (
     <div className="flex h-full w-full flex-col p-3">
       <input
@@ -143,9 +135,7 @@ const Page = (props: PageWithBlockArray) => {
 
       <div
         className="flex h-full w-full flex-col"
-        onKeyDown={(e) => {
-          keyPressEvent(e);
-        }}
+        onKeyDown={keyPressEvent}
         onClick={clickEvent}
       >
         {blockArray.map((block, index) => (
