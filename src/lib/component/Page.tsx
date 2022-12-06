@@ -10,8 +10,10 @@ const Page = (props: PageWithBlockArray) => {
   );
   const [focusedBlockIndex, setFocusedBlockIndex] = useState<number>(-1);
   const [caretPosition, setCaretPosition] = useState<number>(0);
+  const [blockOrder, setBlockOrder] = useState<number[]>(props.blockOrder);
   const createBlockOnPage = trpc.block.create.useMutation();
   const deleteBlockOnPage = trpc.block.del.useMutation();
+  const updateBlockOrderOnPage = trpc.page.updateBlockOrder.useMutation();
   const blockArrayWrapperRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -21,6 +23,17 @@ const Page = (props: PageWithBlockArray) => {
 
     blockElArray[focusedBlockIndex].querySelector("input")?.focus();
   }, [focusedBlockIndex]);
+
+  useEffect(() => {
+    if (blockOrder && props.id && updateBlockOrderOnPage) {
+      updateBlockOrderOnPage.mutateAsync({
+        pageId: props.id,
+        blockOrder,
+      });
+    } else {
+      console.log("conditions not met");
+    }
+  }, [blockOrder, props.id, updateBlockOrderOnPage]);
 
   //BUG: Server does not know the order of the blocks and messes up on next page load.
   const createBlock = async () => {
@@ -37,17 +50,23 @@ const Page = (props: PageWithBlockArray) => {
     });
 
     setFocusedBlockIndex((prev) => prev + 1);
-
-    const createdBlock = await createBlockOnPage.mutateAsync(newBlock);
-
-    //This part still uses the old focusedBlockIndex
-    setBlockArray((prev) => {
-      const tempBlockArray = [...prev];
-      tempBlockArray[focusedBlockIndex + 1] = createdBlock;
-      return tempBlockArray;
-    });
+    addIDToBlock(newBlock, focusedBlockIndex + 1);
   };
 
+  const addIDToBlock = async (block: ClientSideBlock, index: number) => {
+    const createdBlock = await createBlockOnPage.mutateAsync(block);
+
+    setBlockArray((prev) => {
+      const tempBlockArray = [...prev];
+      tempBlockArray[index] = createdBlock;
+      return tempBlockArray;
+    });
+
+    const tempArray = [...blockOrder];
+    tempArray.splice(index, 0, createdBlock.id);
+
+    setBlockOrder(tempArray);
+  };
   /**
    * Handles arrow key navigation. Selects a child element within page and iterates through them based on arrow key presses.
    */
@@ -68,6 +87,7 @@ const Page = (props: PageWithBlockArray) => {
   /**
    * Finds the index of the focused block and deletes it from the block array.
    * Deletes the block from the database.
+   * TODO: Wait until createBlockOnPage is done before deleting the block from the array.
    */
   const deleteBlock = (e: React.KeyboardEvent<HTMLDivElement>) => {
     const focusedBlock = blockArray[focusedBlockIndex];
@@ -88,6 +108,10 @@ const Page = (props: PageWithBlockArray) => {
     } else {
       console.log("block not yet created on server");
     }
+
+    const tempArray = [...blockOrder];
+    tempArray.splice(focusedBlockIndex, 1);
+    setBlockOrder(tempArray);
   };
 
   const keyPressEvent = (e: React.KeyboardEvent<HTMLDivElement>) => {

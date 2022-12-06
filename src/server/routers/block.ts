@@ -32,8 +32,6 @@ const blockRouter = router({
       content: z.string()
     }))
     .mutation(({ input }) => {
-      console.log("updating block");
-
       return db.block.update({
         where: {
           id: input.id

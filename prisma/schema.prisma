@@ -22,6 +22,7 @@ model Page {
   author     User    @relation(fields: [authorId], references: [id])
   authorId   Int
   blockArray Block[]
+  blockOrder Int[]
 }
 
 model Block {

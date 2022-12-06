@@ -14,19 +14,18 @@ interface Props {
 const Block = (props: Props) => {
   const blockRef = useRef<HTMLInputElement>(null);
   const updateBlock = trpc.block.update.useMutation();
+  const blockId = "id" in props.block ? props.block.id : null;
 
-  //useCallback saves the function 'debounce'. when this function is called, it will use the same debounce function, accessing the same 'timer' variable.
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const updateBlockOnServer = useCallback(
     debounce(() => {
-      if (!("id" in props.block)) return;
-
+      if (!blockId) return;
       updateBlock.mutate({
-        id: props.block.id,
+        id: blockId,
         content: props.block.content,
       });
     }),
-    []
+    [blockId]
   );
 
   return (
