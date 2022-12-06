@@ -29,18 +29,12 @@ const Block = (props: Props) => {
     []
   );
 
-  useEffect(() => {
-    blockRef.current?.focus();
-  }, []);
-
   return (
     <div className="flex w-full gap-x-4">
       <div className="">{props.index}</div>
       <input
         ref={blockRef}
         onFocus={(e) => {
-          props.setFocusedBlockIndex(props.index);
-
           const blockTextLength = e.currentTarget.value.length;
           props.setCaretPosition((prev) =>
             blockTextLength < prev ? blockTextLength : prev
@@ -48,6 +42,7 @@ const Block = (props: Props) => {
         }}
         onClick={() => {
           const caretPosition = blockRef.current?.selectionStart;
+          props.setFocusedBlockIndex(props.index);
 
           if (caretPosition === undefined || caretPosition === null) return;
           props.setCaretPosition(caretPosition);

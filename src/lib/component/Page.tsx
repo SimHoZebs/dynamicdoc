@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Block from "./Block";
 import { ClientSideBlock, PageWithBlockArray } from "../util/types";
 import { trpc } from "../util/trpc";
@@ -8,11 +8,21 @@ const Page = (props: PageWithBlockArray) => {
   const [blockArray, setBlockArray] = useState<ClientSideBlock[]>(
     props.blockArray
   );
-  const [focusedBlockIndex, setFocusedBlockIndex] = useState<number>(0);
+  const [focusedBlockIndex, setFocusedBlockIndex] = useState<number>(-1);
   const [caretPosition, setCaretPosition] = useState<number>(0);
   const createBlockOnPage = trpc.block.create.useMutation();
   const deleteBlockOnPage = trpc.block.del.useMutation();
+  const blockArrayWrapperRef = useRef<HTMLDivElement>(null);
 
+  useEffect(() => {
+    const blockElArray = blockArrayWrapperRef.current?.children;
+    if (!blockElArray || blockElArray.length === 0 || focusedBlockIndex < 0)
+      return;
+
+    blockElArray[focusedBlockIndex].querySelector("input")?.focus();
+  }, [focusedBlockIndex]);
+
+  //BUG: Server does not know the order of the blocks and messes up on next page load.
   const createBlock = async () => {
     const newBlock: ClientSideBlock = {
       type: "",
@@ -21,18 +31,20 @@ const Page = (props: PageWithBlockArray) => {
     };
 
     setBlockArray((prev) => {
-      return [...prev, newBlock];
+      const tempBlockArray = [...prev];
+      tempBlockArray.splice(focusedBlockIndex + 1, 0, newBlock);
+      return tempBlockArray;
     });
 
-    const createdBlock = await createBlockOnPage.mutateAsync({
-      type: "text",
-      content: "",
-      pageId: props.id,
-    });
+    setFocusedBlockIndex((prev) => prev + 1);
 
+    const createdBlock = await createBlockOnPage.mutateAsync(newBlock);
+
+    //This part still uses the old focusedBlockIndex
     setBlockArray((prev) => {
-      prev[prev.length - 1] = createdBlock;
-      return prev;
+      const tempBlockArray = [...prev];
+      tempBlockArray[focusedBlockIndex + 1] = createdBlock;
+      return tempBlockArray;
     });
   };
 
@@ -48,7 +60,7 @@ const Page = (props: PageWithBlockArray) => {
       const inputEl = el.children[nextIndex].querySelector("input");
       if (!inputEl) return;
 
-      inputEl.focus();
+      setFocusedBlockIndex(nextIndex);
       inputEl.setSelectionRange(caretPosition, caretPosition);
     }
   };
@@ -69,12 +81,7 @@ const Page = (props: PageWithBlockArray) => {
       return prev;
     });
 
-    //set focus to the previous block
-    if (focusedBlockIndex !== 0) {
-      e.currentTarget.children[focusedBlockIndex - 1]
-        .querySelector("input")
-        ?.focus();
-    }
+    setFocusedBlockIndex((prev) => prev - 1);
 
     if ("id" in focusedBlock) {
       deleteBlockOnPage.mutate(focusedBlock.id);
@@ -118,8 +125,9 @@ const Page = (props: PageWithBlockArray) => {
 
   const clickEvent = (e: React.MouseEvent<HTMLDivElement>) => {
     if (
-      !(e.target instanceof HTMLInputElement) &&
-      blockArray[blockArray.length - 1].content !== ""
+      blockArray.length === 0 ||
+      (!(e.target instanceof HTMLInputElement) &&
+        blockArray[blockArray.length - 1].content !== "")
     ) {
       createBlock();
     }
@@ -137,6 +145,7 @@ const Page = (props: PageWithBlockArray) => {
         className="flex h-full w-full flex-col"
         onKeyDown={keyPressEvent}
         onClick={clickEvent}
+        ref={blockArrayWrapperRef}
       >
         {blockArray.map((block, index) => (
           <Block
