@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import Line from "./Line";
 import { Doc } from "../util/types";
+import { writeTextFile, BaseDirectory } from "@tauri-apps/api/fs";
 
 const Doc = (props: Doc) => {
   const [title, setTitle] = useState(props.title);
@@ -8,6 +9,13 @@ const Doc = (props: Doc) => {
   const [focusedLineIndex, setFocusedLineIndex] = useState<number>(-1);
   const [caretPosition, setCaretPosition] = useState<number>(0);
   const contentWrapperRef = useRef<HTMLDivElement>(null);
+
+  const saveDoc = () => {
+    console.log("saving Doc");
+    writeTextFile("Basalt/" + props.title, content.join("\n"), {
+      dir: BaseDirectory.Data,
+    });
+  };
 
   useEffect(() => {
     const contentEl = contentWrapperRef.current?.children;
@@ -111,11 +119,14 @@ const Doc = (props: Doc) => {
 
   return (
     <div className="flex h-full w-full flex-col p-3">
-      <input
-        className="bg-inherit text-4xl"
-        value={title}
-        onChange={(e) => setTitle(e.currentTarget.value)}
-      />
+      <div>
+        <input
+          className="bg-inherit text-4xl"
+          value={title}
+          onChange={(e) => setTitle(e.currentTarget.value)}
+        />
+        <button onClick={saveDoc}>save</button>
+      </div>
 
       <div
         className="flex h-full w-full flex-col"
