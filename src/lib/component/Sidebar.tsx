@@ -1,4 +1,3 @@
-import { User } from "@prisma/client";
 import {
   readDir,
   BaseDirectory,
@@ -6,20 +5,14 @@ import {
   FileEntry,
   readTextFile,
 } from "@tauri-apps/api/fs";
-import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
-import { useStoreActions, useStoreState } from "../util/globalStates";
-import { Doc, PageWithBlockArray } from "../util/types";
+import { Doc } from "../util/types";
 
 interface Props {
   setSelectedDoc: React.Dispatch<React.SetStateAction<Doc | null>>;
-  user: User | null;
 }
 
 const Sidebar = (props: Props) => {
-  const user = useStoreState((state) => state.user);
-  const setUser = useStoreActions((actions) => actions.setUser);
-  const router = useRouter();
   const [docArray, setDocArray] = useState<FileEntry[]>([]);
 
   useEffect(() => {
@@ -30,21 +23,9 @@ const Sidebar = (props: Props) => {
     getDocArrayFromDir();
   }, []);
 
-  useEffect(() => {
-    async function test() {
-      const user = props.user;
-      if (!user) {
-        router.push("/");
-        return;
-      }
-      setUser(user);
-    }
-    test();
-  }, [props.user, router, setUser]);
-
   return (
     <div className="flex min-w-[180px] flex-col items-center justify-start gap-y-2 bg-dark-700 p-3">
-      <div>Username: {user.name}</div>
+      <div>Hello</div>
 
       <div className="flex flex-col">
         {docArray

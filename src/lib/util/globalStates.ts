@@ -1,4 +1,3 @@
-import { Page, User } from "@prisma/client";
 import {
   Action,
   action,
@@ -7,21 +6,9 @@ import {
 } from "easy-peasy";
 
 interface Store {
-  user: User;
-  setUser: Action<Store, User>;
-  pageArray: Page[];
-  setPageArray: Action<Store, Page[]>;
 }
 
 const globalState = createStore<Store>({
-  user: { id: 0, name: "" },
-  setUser: action((state, payload) => {
-    state.user = payload;
-  }),
-  pageArray: [],
-  setPageArray: action((state, payload) => {
-    state.pageArray = payload;
-  })
 
 });
 
