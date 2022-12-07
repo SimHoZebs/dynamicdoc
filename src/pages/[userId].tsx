@@ -7,6 +7,9 @@ import Sidebar from "../lib/component/Sidebar";
 import Page from "../lib/component/Page";
 import { PageWithBlockArray } from "../lib/util/types";
 import { caller } from "../server/routers/_app";
+import { invoke } from "@tauri-apps/api/tauri";
+
+const isClient = typeof window !== "undefined";
 
 const Home = (
   props: InferGetServerSidePropsType<typeof getServerSideProps>
@@ -14,6 +17,8 @@ const Home = (
   const [selectedPage, setSelectedPage] = useState<PageWithBlockArray | null>(
     null
   );
+  isClient &&
+    invoke("greet", { name: "World" }).then(console.log).catch(console.error);
 
   return (
     <div className="flex h-screen w-screen bg-dark-900 text-gray-200">
