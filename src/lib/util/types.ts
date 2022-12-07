@@ -10,3 +10,8 @@ export type PageWithBlockArray = Prisma.PageGetPayload<{
 }>;
 
 export type ClientSideBlock = Omit<Block, "id"> | Block;
+
+export type Doc = {
+  title: string;
+  content: string[];
+};

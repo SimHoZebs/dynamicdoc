@@ -1,14 +1,18 @@
 import { User } from "@prisma/client";
+import {
+  readDir,
+  BaseDirectory,
+  writeTextFile,
+  FileEntry,
+  readTextFile,
+} from "@tauri-apps/api/fs";
 import { useRouter } from "next/router";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useStoreActions, useStoreState } from "../util/globalStates";
-import { trpc } from "../util/trpc";
-import { PageWithBlockArray } from "../util/types";
+import { Doc, PageWithBlockArray } from "../util/types";
 
 interface Props {
-  setSelectedPage: React.Dispatch<
-    React.SetStateAction<PageWithBlockArray | null>
-  >;
+  setSelectedDoc: React.Dispatch<React.SetStateAction<Doc | null>>;
   user: User | null;
 }
 
@@ -16,10 +20,15 @@ const Sidebar = (props: Props) => {
   const user = useStoreState((state) => state.user);
   const setUser = useStoreActions((actions) => actions.setUser);
   const router = useRouter();
-  const createPage = trpc.page.create.useMutation();
-  const util = trpc.useContext();
-  const { data: pageArray, refetch: refetchPageArray } =
-    trpc.page.getAll.useQuery(user.id);
+  const [docArray, setDocArray] = useState<FileEntry[]>([]);
+
+  useEffect(() => {
+    const getDocArrayFromDir = async () => {
+      const docArray = await readDir("Basalt", { dir: BaseDirectory.Data });
+      setDocArray(docArray);
+    };
+    getDocArrayFromDir();
+  }, []);
 
   useEffect(() => {
     async function test() {
@@ -38,36 +47,47 @@ const Sidebar = (props: Props) => {
       <div>Username: {user.name}</div>
 
       <div className="flex flex-col">
-        {pageArray
-          ? pageArray.map((document, index) => (
+        {docArray
+          ? docArray.map((doc, index) => (
               <button
                 className="rounded p-1 hover:bg-dark-200"
                 key={index}
                 onClick={async () => {
-                  const selectedPage = await util.page.get.fetch({
-                    id: document.id,
-                    authorId: user.id,
+                  const fileContent = await readTextFile("Basalt/" + doc.name, {
+                    dir: BaseDirectory.Data,
                   });
-
-                  if (selectedPage) {
-                    props.setSelectedPage(selectedPage);
-                  }
+                  props.setSelectedDoc({
+                    title: doc.name ? doc.name : "",
+                    content: fileContent.split(/\r?\n/),
+                  });
                 }}
               >
-                {document.title}
+                {doc.name}
               </button>
             ))
           : null}
       </div>
-
+      <button
+        className="rounded bg-blue-500 p-1 "
+        onClick={async () => {
+          const fileContent = await readTextFile("Basalt/" + "test.md", {
+            dir: BaseDirectory.Data,
+          });
+          console.log(fileContent.split(/\r?\n/));
+        }}
+      >
+        test
+      </button>
       <button
         className="flex rounded bg-blue-500 py-1 px-2 text-xs"
-        onClick={() => {
-          createPage.mutate({
-            title: "Untitled document",
-            authorId: user.id,
+        onClick={async () => {
+          await writeTextFile("Basalt/untitled.md", "", {
+            dir: BaseDirectory.Data,
           });
-          refetchPageArray();
+          const fileArray = await readDir("Basalt", {
+            dir: BaseDirectory.Data,
+          });
+          setDocArray(fileArray);
         }}
       >
         Create document

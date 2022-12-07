@@ -2,30 +2,23 @@ import type {
   GetServerSidePropsContext,
   InferGetServerSidePropsType,
 } from "next";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Sidebar from "../lib/component/Sidebar";
 import Page from "../lib/component/Page";
-import { PageWithBlockArray } from "../lib/util/types";
+import { Doc, PageWithBlockArray } from "../lib/util/types";
 import { caller } from "../server/routers/_app";
-import { invoke } from "@tauri-apps/api/tauri";
-
-const isClient = typeof window !== "undefined";
 
 const Home = (
   props: InferGetServerSidePropsType<typeof getServerSideProps>
 ) => {
-  const [selectedPage, setSelectedPage] = useState<PageWithBlockArray | null>(
-    null
-  );
-  isClient &&
-    invoke("greet", { name: "World" }).then(console.log).catch(console.error);
+  const [selectedDoc, setSelectedDoc] = useState<Doc | null>(null);
 
   return (
     <div className="flex h-screen w-screen bg-dark-900 text-gray-200">
-      <Sidebar setSelectedPage={setSelectedPage} user={props.user} />
+      <Sidebar user={props.user} setSelectedDoc={setSelectedDoc} />
 
-      {selectedPage ? (
-        <Page {...selectedPage} />
+      {selectedDoc ? (
+        <Page {...selectedDoc} />
       ) : (
         <div className="flex w-full">no document</div>
       )}
