@@ -1,47 +1,25 @@
 import React, { useEffect, useRef, useState } from "react";
 import Block from "./Block";
-import { ClientSideBlock, PageWithBlockArray } from "../util/types";
-import { trpc } from "../util/trpc";
+import { Doc } from "../util/types";
 
-const Page = (props: PageWithBlockArray) => {
+const Page = (props: Doc) => {
   const [title, setTitle] = useState(props.title);
-  const [blockArray, setBlockArray] = useState<ClientSideBlock[]>(
-    props.blockArray
-  );
+  const [blockArray, setBlockArray] = useState<string[]>(props.content);
   const [focusedBlockIndex, setFocusedBlockIndex] = useState<number>(-1);
   const [caretPosition, setCaretPosition] = useState<number>(0);
-  const [blockOrder, setBlockOrder] = useState<number[]>(props.blockOrder);
-  const createBlockOnPage = trpc.block.create.useMutation();
-  const deleteBlockOnPage = trpc.block.del.useMutation();
-  const updateBlockOrderOnPage = trpc.page.updateBlockOrder.useMutation();
-  const blockArrayWrapperRef = useRef<HTMLDivElement>(null);
+  const pageBodyRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const blockElArray = blockArrayWrapperRef.current?.children;
+    const blockElArray = pageBodyRef.current?.children;
     if (!blockElArray || blockElArray.length === 0 || focusedBlockIndex < 0)
       return;
 
     blockElArray[focusedBlockIndex].querySelector("input")?.focus();
   }, [focusedBlockIndex]);
 
-  useEffect(() => {
-    if (blockOrder && props.id && updateBlockOrderOnPage) {
-      updateBlockOrderOnPage.mutateAsync({
-        pageId: props.id,
-        blockOrder,
-      });
-    } else {
-      console.log("conditions not met");
-    }
-  }, [blockOrder, props.id, updateBlockOrderOnPage]);
-
   //BUG: Server does not know the order of the blocks and messes up on next page load.
   const createBlock = async () => {
-    const newBlock: ClientSideBlock = {
-      type: "",
-      content: "",
-      pageId: props.id,
-    };
+    const newBlock = "";
 
     setBlockArray((prev) => {
       const tempBlockArray = [...prev];
@@ -50,23 +28,8 @@ const Page = (props: PageWithBlockArray) => {
     });
 
     setFocusedBlockIndex((prev) => prev + 1);
-    addIDToBlock(newBlock, focusedBlockIndex + 1);
   };
 
-  const addIDToBlock = async (block: ClientSideBlock, index: number) => {
-    const createdBlock = await createBlockOnPage.mutateAsync(block);
-
-    setBlockArray((prev) => {
-      const tempBlockArray = [...prev];
-      tempBlockArray[index] = createdBlock;
-      return tempBlockArray;
-    });
-
-    const tempArray = [...blockOrder];
-    tempArray.splice(index, 0, createdBlock.id);
-
-    setBlockOrder(tempArray);
-  };
   /**
    * Handles arrow key navigation. Selects a child element within page and iterates through them based on arrow key presses.
    */
@@ -92,7 +55,7 @@ const Page = (props: PageWithBlockArray) => {
   const deleteBlock = (e: React.KeyboardEvent<HTMLDivElement>) => {
     const focusedBlock = blockArray[focusedBlockIndex];
 
-    if (focusedBlock.content !== "") return;
+    if (focusedBlock !== "") return;
 
     e.preventDefault();
 
@@ -102,16 +65,6 @@ const Page = (props: PageWithBlockArray) => {
     });
 
     setFocusedBlockIndex((prev) => prev - 1);
-
-    if ("id" in focusedBlock) {
-      deleteBlockOnPage.mutate(focusedBlock.id);
-    } else {
-      console.log("block not yet created on server");
-    }
-
-    const tempArray = [...blockOrder];
-    tempArray.splice(focusedBlockIndex, 1);
-    setBlockOrder(tempArray);
   };
 
   const keyPressEvent = (e: React.KeyboardEvent<HTMLDivElement>) => {
@@ -151,7 +104,7 @@ const Page = (props: PageWithBlockArray) => {
     if (
       blockArray.length === 0 ||
       (!(e.target instanceof HTMLInputElement) &&
-        blockArray[blockArray.length - 1].content !== "")
+        blockArray[blockArray.length - 1] !== "")
     ) {
       createBlock();
     }
@@ -169,16 +122,16 @@ const Page = (props: PageWithBlockArray) => {
         className="flex h-full w-full flex-col"
         onKeyDown={keyPressEvent}
         onClick={clickEvent}
-        ref={blockArrayWrapperRef}
+        ref={pageBodyRef}
       >
-        {blockArray.map((block, index) => (
+        {blockArray.map((content, index) => (
           <Block
+            setBlockArray={setBlockArray}
             setCaretPosition={setCaretPosition}
             setFocusedBlockIndex={setFocusedBlockIndex}
             key={index}
-            block={block}
+            content={content}
             index={index}
-            setBlockArray={setBlockArray}
           />
         ))}
       </div>
