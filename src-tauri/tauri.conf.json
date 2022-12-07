@@ -7,14 +7,14 @@
     "distDir": "../out"
   },
   "package": {
-    "productName": "DynamicDoc",
+    "productName": "Basalt",
     "version": "0.1.0"
   },
   "tauri": {
     "allowlist": {
-      "all": false,
       "fs": {
-        "all": true
+        "all": true,
+        "scope": ["$DATA/*"]
       }
     },
     "bundle": {

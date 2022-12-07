@@ -1,14 +1,22 @@
 import { useRouter } from "next/router";
 import React from "react";
 import { trpc } from "../lib/util/trpc";
+import { BaseDirectory, writeTextFile } from "@tauri-apps/api/fs";
 
 const Home = () => {
   const router = useRouter();
   const util = trpc.useContext();
   const createUser = trpc.user.create.useMutation();
 
+  const readDB = async () => {};
+  const writeFile = async () => {
+    writeTextFile("Basalt/test.md", "", { dir: BaseDirectory.Data });
+  };
+
   return (
-    <div>
+    <div className="flex flex-col">
+      <button onClick={readDB}>readDB</button>
+      <button onClick={writeFile}>writeFile</button>
       <button
         onClick={async () => {
           const user = await createUser.mutateAsync({ name: "test" });
