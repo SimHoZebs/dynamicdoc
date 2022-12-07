@@ -1,48 +1,47 @@
 import React, { useEffect, useRef, useState } from "react";
-import Block from "./Block";
+import Line from "./Line";
 import { Doc } from "../util/types";
 
-const Page = (props: Doc) => {
+const Doc = (props: Doc) => {
   const [title, setTitle] = useState(props.title);
-  const [blockArray, setBlockArray] = useState<string[]>(props.content);
-  const [focusedBlockIndex, setFocusedBlockIndex] = useState<number>(-1);
+  const [content, setContent] = useState<string[]>(props.content);
+  const [focusedLineIndex, setFocusedLineIndex] = useState<number>(-1);
   const [caretPosition, setCaretPosition] = useState<number>(0);
-  const pageBodyRef = useRef<HTMLDivElement>(null);
+  const contentWrapperRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const blockElArray = pageBodyRef.current?.children;
-    if (!blockElArray || blockElArray.length === 0 || focusedBlockIndex < 0)
-      return;
+    const contentEl = contentWrapperRef.current?.children;
+    if (!contentEl || contentEl.length === 0 || focusedLineIndex < 0) return;
 
-    blockElArray[focusedBlockIndex].querySelector("input")?.focus();
-  }, [focusedBlockIndex]);
+    contentEl[focusedLineIndex].querySelector("input")?.focus();
+  }, [focusedLineIndex]);
 
   //BUG: Server does not know the order of the blocks and messes up on next page load.
-  const createBlock = async () => {
-    const newBlock = "";
+  const createLine = async () => {
+    const newLine = "";
 
-    setBlockArray((prev) => {
-      const tempBlockArray = [...prev];
-      tempBlockArray.splice(focusedBlockIndex + 1, 0, newBlock);
-      return tempBlockArray;
+    setContent((prev) => {
+      const newContent = [...prev];
+      newContent.splice(focusedLineIndex + 1, 0, newLine);
+      return newContent;
     });
 
-    setFocusedBlockIndex((prev) => prev + 1);
+    setFocusedLineIndex((prev) => prev + 1);
   };
 
   /**
    * Handles arrow key navigation. Selects a child element within page and iterates through them based on arrow key presses.
    */
   const lineNavigation = (direction: number, el: HTMLDivElement) => {
-    const nextIndex = focusedBlockIndex + direction;
+    const nextIndex = focusedLineIndex + direction;
     if (nextIndex < 0) return;
-    else if (nextIndex >= blockArray.length) {
-      createBlock();
+    else if (nextIndex >= content.length) {
+      createLine();
     } else {
       const inputEl = el.children[nextIndex].querySelector("input");
       if (!inputEl) return;
 
-      setFocusedBlockIndex(nextIndex);
+      setFocusedLineIndex(nextIndex);
       inputEl.setSelectionRange(caretPosition, caretPosition);
     }
   };
@@ -52,19 +51,19 @@ const Page = (props: Doc) => {
    * Deletes the block from the database.
    * TODO: Wait until createBlockOnPage is done before deleting the block from the array.
    */
-  const deleteBlock = (e: React.KeyboardEvent<HTMLDivElement>) => {
-    const focusedBlock = blockArray[focusedBlockIndex];
+  const deleteLine = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    const focusedLine = content[focusedLineIndex];
 
-    if (focusedBlock !== "") return;
+    if (focusedLine !== "") return;
 
     e.preventDefault();
 
-    setBlockArray((prev) => {
-      prev.splice(focusedBlockIndex, 1);
+    setContent((prev) => {
+      prev.splice(focusedLineIndex, 1);
       return prev;
     });
 
-    setFocusedBlockIndex((prev) => prev - 1);
+    setFocusedLineIndex((prev) => prev - 1);
   };
 
   const keyPressEvent = (e: React.KeyboardEvent<HTMLDivElement>) => {
@@ -92,21 +91,21 @@ const Page = (props: Doc) => {
         break;
 
       case "Backspace":
-        deleteBlock(e);
+        deleteLine(e);
         break;
 
       case "Enter":
-        createBlock();
+        createLine();
     }
   };
 
   const clickEvent = (e: React.MouseEvent<HTMLDivElement>) => {
     if (
-      blockArray.length === 0 ||
+      content.length === 0 ||
       (!(e.target instanceof HTMLInputElement) &&
-        blockArray[blockArray.length - 1] !== "")
+        content[content.length - 1] !== "")
     ) {
-      createBlock();
+      createLine();
     }
   };
 
@@ -122,15 +121,15 @@ const Page = (props: Doc) => {
         className="flex h-full w-full flex-col"
         onKeyDown={keyPressEvent}
         onClick={clickEvent}
-        ref={pageBodyRef}
+        ref={contentWrapperRef}
       >
-        {blockArray.map((content, index) => (
-          <Block
-            setBlockArray={setBlockArray}
+        {content.map((line, index) => (
+          <Line
+            setContent={setContent}
             setCaretPosition={setCaretPosition}
-            setFocusedBlockIndex={setFocusedBlockIndex}
+            setFocusedLineIndex={setFocusedLineIndex}
             key={index}
-            content={content}
+            line={line}
             index={index}
           />
         ))}
@@ -139,4 +138,4 @@ const Page = (props: Doc) => {
   );
 };
 
-export default Page;
+export default Doc;
