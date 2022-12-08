@@ -16,12 +16,6 @@ const Line = (props: Props) => {
       <div className="">{props.index}</div>
       <input
         ref={inputElRef}
-        onFocus={(e) => {
-          const lineLength = e.currentTarget.value.length;
-          props.setCaretPosition((prev) =>
-            lineLength < prev ? lineLength : prev
-          );
-        }}
         onClick={() => {
           const caretPosition = inputElRef.current?.selectionStart;
           props.setFocusedLineIndex(props.index);

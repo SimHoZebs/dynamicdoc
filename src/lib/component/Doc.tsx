@@ -22,25 +22,32 @@ const Doc = (props: Doc) => {
     if (!contentEl || contentEl.length === 0 || focusedLineIndex < 0) return;
 
     contentEl[focusedLineIndex].querySelector("input")?.focus();
-  }, [focusedLineIndex]);
 
-  //BUG: Server does not know the order of the blocks and messes up on next page load.
+    contentEl[focusedLineIndex]
+      .querySelector("input")
+      ?.setSelectionRange(caretPosition, caretPosition);
+  }, [focusedLineIndex, caretPosition]);
+
   const createLine = async () => {
-    const newLine = "";
-
     setContent((prev) => {
       const newContent = [...prev];
-      newContent.splice(focusedLineIndex + 1, 0, newLine);
+      newContent.splice(focusedLineIndex + 1, 0, "");
       return newContent;
     });
 
     setFocusedLineIndex((prev) => prev + 1);
+    setCaretPosition(0);
   };
 
   /**
    * Handles arrow key navigation. Selects a child element within page and iterates through them based on arrow key presses.
    */
-  const lineNavigation = (direction: number, el: HTMLDivElement) => {
+  const lineNavigation = (
+    direction: number,
+    e: React.KeyboardEvent<HTMLDivElement>
+  ) => {
+    e.preventDefault();
+    const el = e.currentTarget;
     const nextIndex = focusedLineIndex + direction;
     if (nextIndex < 0) return;
     else if (nextIndex >= content.length) {
@@ -50,50 +57,44 @@ const Doc = (props: Doc) => {
       if (!inputEl) return;
 
       setFocusedLineIndex(nextIndex);
-      inputEl.setSelectionRange(caretPosition, caretPosition);
+      const nextLineLength = content[focusedLineIndex + direction].length;
+      setCaretPosition((curr) =>
+        nextLineLength < curr ? nextLineLength : curr
+      );
     }
   };
 
-  /**
-   * Finds the index of the focused block and deletes it from the block array.
-   * Deletes the block from the database.
-   * TODO: Wait until createBlockOnPage is done before deleting the block from the array.
-   */
   const deleteLine = (e: React.KeyboardEvent<HTMLDivElement>) => {
-    const focusedLine = content[focusedLineIndex];
-
-    if (focusedLine !== "") return;
-
+    if (caretPosition !== 0) return;
     e.preventDefault();
 
     setContent((prev) => {
-      const newContent = [...prev];
-      newContent.splice(focusedLineIndex, 1);
-      return newContent;
+      const contentCopy = [...prev];
+      const deletedLine = contentCopy.splice(focusedLineIndex, 1);
+      contentCopy[contentCopy.length - 1] += deletedLine[0];
+      return contentCopy;
     });
 
     setFocusedLineIndex((prev) => prev - 1);
+    setCaretPosition(content[focusedLineIndex - 1].length);
   };
-
   const keyPressEvent = (e: React.KeyboardEvent<HTMLDivElement>) => {
-    const el = e.currentTarget;
-    //For some reason, the keypress event's default behavior triggers after running the function, requiring most of them to be negated.
     switch (e.key) {
       case "ArrowUp":
-        e.preventDefault();
-        lineNavigation(-1, el);
+        lineNavigation(-1, e);
         break;
 
       case "ArrowDown":
-        e.preventDefault();
-        lineNavigation(1, el);
+        lineNavigation(1, e);
         break;
 
       case "ArrowLeft":
+        e.preventDefault();
         setCaretPosition((prev) => (prev === 0 ? 0 : prev - 1));
         break;
 
       case "ArrowRight":
+        e.preventDefault();
         setCaretPosition((prev) =>
           prev === (e.target as HTMLInputElement).value.length ? prev : prev + 1
         );
