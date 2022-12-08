@@ -35,9 +35,9 @@ const Line = (props: Props) => {
           }
 
           props.setContent((prev) => {
-            const newContent = [...prev];
-            newContent[props.index] = e.target.value;
-            return newContent;
+            const contentCopy = [...prev];
+            contentCopy[props.index] = e.target.value;
+            return contentCopy;
           });
         }}
         value={props.line}

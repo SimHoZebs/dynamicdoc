@@ -50,17 +50,6 @@ const Sidebar = (props: Props) => {
       </div>
 
       <button
-        className="rounded bg-blue-500 p-1 "
-        onClick={async () => {
-          const fileContent = await readTextFile("Basalt/" + "test.md", {
-            dir: BaseDirectory.Data,
-          });
-          console.log(fileContent.split(/\r?\n/));
-        }}
-      >
-        test
-      </button>
-      <button
         className="flex rounded bg-blue-500 py-1 px-2 text-xs"
         onClick={async () => {
           await writeTextFile("Basalt/untitled.md", "", {
