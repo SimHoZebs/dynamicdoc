@@ -67,8 +67,9 @@ const Doc = (props: Doc) => {
     e.preventDefault();
 
     setContent((prev) => {
-      prev.splice(focusedLineIndex, 1);
-      return prev;
+      const newContent = [...prev];
+      newContent.splice(focusedLineIndex, 1);
+      return newContent;
     });
 
     setFocusedLineIndex((prev) => prev - 1);
