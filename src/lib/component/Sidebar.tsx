@@ -48,6 +48,7 @@ const Sidebar = (props: Props) => {
             ))
           : null}
       </div>
+
       <button
         className="rounded bg-blue-500 p-1 "
         onClick={async () => {

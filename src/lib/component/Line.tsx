@@ -32,6 +32,14 @@ const Line = (props: Props) => {
         className="w-full bg-dark-800 outline-none"
         spellCheck={false}
         onChange={(e) => {
+          if (props.line > e.target.value) {
+            props.setCaretPosition((prev) => prev - 1);
+          } else if (props.line < e.target.value) {
+            props.setCaretPosition((prev) => prev + 1);
+          } else {
+            return;
+          }
+
           props.setContent((prev) => {
             const newContent = [...prev];
             newContent[props.index] = e.target.value;
