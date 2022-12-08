@@ -30,9 +30,12 @@ const Doc = (props: Doc) => {
 
   const createLine = async () => {
     setContent((prev) => {
-      const newContent = [...prev];
-      newContent.splice(focusedLineIndex + 1, 0, "");
-      return newContent;
+      const contentCopy = [...prev];
+      const currentLine = contentCopy[focusedLineIndex];
+      const newLine = currentLine.slice(caretPosition);
+      contentCopy[focusedLineIndex] = currentLine.slice(0, caretPosition);
+      contentCopy.splice(focusedLineIndex + 1, 0, newLine);
+      return contentCopy;
     });
 
     setFocusedLineIndex((prev) => prev + 1);
