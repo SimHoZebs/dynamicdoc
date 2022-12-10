@@ -1,17 +1,19 @@
-import { Block, Prisma } from "@prisma/client";
+import { BaseEditor } from 'slate';
+import { ReactEditor } from 'slate-react';
 
-//This makes it so that there is two places to get types, which is not ideal.
-//How do I solve that?
 
-export type PageWithBlockArray = Prisma.PageGetPayload<{
-  include: {
-    blockArray: true;
-  };
-}>;
+// TypeScript users only add this code
 
-export type ClientSideBlock = Omit<Block, "id"> | Block;
+type CustomText = { text: string; };
 
-export type Doc = {
-  title: string;
-  content: string[];
-};
+type HeadingOneElement = { type: 'heading_one'; children: CustomText[]; };
+
+export type CustomElement = HeadingOneElement;
+
+declare module 'slate' {
+  interface CustomTypes {
+    Editor: BaseEditor & ReactEditor;
+    Element: CustomElement;
+    Text: CustomText;
+  }
+}

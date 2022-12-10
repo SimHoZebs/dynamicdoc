@@ -19,6 +19,11 @@
     "next": "^13.0.3",
     "react": "18.2.0",
     "react-dom": "18.2.0",
+    "remark-parse": "^10.0.1",
+    "remark-slate": "^1.8.6",
+    "slate": "^0.87.0",
+    "slate-react": "^0.87.0",
+    "unified": "^10.1.2",
     "zod": "^3.19.1"
   },
   "devDependencies": {
