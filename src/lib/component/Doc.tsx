@@ -1,6 +1,12 @@
 import React, { useRef, useState } from "react";
 import { createEditor, Descendant } from "slate";
-import { Slate, Editable, withReact, RenderElementProps } from "slate-react";
+import {
+  Slate,
+  Editable,
+  withReact,
+  RenderElementProps,
+  RenderLeafProps,
+} from "slate-react";
 import { VFile } from "vfile/lib";
 import { writeTextFile, BaseDirectory } from "@tauri-apps/api/fs";
 import { serialize } from "remark-slate";
@@ -24,9 +30,55 @@ const Doc = ({ file }: { file: VFile }) => {
             {props.children}
           </h1>
         );
+      case "heading_two":
+        return (
+          <h2
+            className={`text-3xl ${props.element.children}`}
+            {...props.attributes}
+          >
+            {props.children}
+          </h2>
+        );
+      case "heading_three":
+        return (
+          <h3 className="text-2xl" {...props.attributes}>
+            {props.children}
+          </h3>
+        );
+      case "heading_four":
+        return (
+          <h4 className="text-xl" {...props.attributes}>
+            {props.children}
+          </h4>
+        );
+      case "heading_five":
+        return (
+          <h5 className="text-lg" {...props.attributes}>
+            {props.children}
+          </h5>
+        );
+      case "heading_six":
+        return (
+          <h6 className="text-base" {...props.attributes}>
+            {props.children}
+          </h6>
+        );
+
       default:
-        return <p {...props.attributes}>{props.children}</p>;
+        return <div {...props.attributes}>{props.children}</div>;
     }
+  };
+
+  const renderLeaf = (props: RenderLeafProps) => {
+    return (
+      <p
+        className={`${props.leaf.italic ? "italic" : null} ${
+          props.leaf.bold ? "font-bold" : null
+        } `}
+      >
+        {props.children}
+      </p>
+    );
   };
 
   return (
@@ -39,7 +91,7 @@ const Doc = ({ file }: { file: VFile }) => {
       <div className="flex h-full w-full flex-col">
         {initialValue ? (
           <Slate editor={editor} value={initialValue.current}>
-            <Editable renderElement={renderElement} />
+            <Editable renderElement={renderElement} renderLeaf={renderLeaf} />
           </Slate>
         ) : (
           <div>lul</div>
