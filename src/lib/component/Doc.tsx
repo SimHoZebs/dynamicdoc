@@ -1,5 +1,5 @@
 import React, { useRef, useState } from "react";
-import { createEditor, Descendant } from "slate";
+import { createEditor, Descendant, Editor, Transforms } from "slate";
 import {
   Slate,
   Editable,
@@ -10,6 +10,7 @@ import {
 import { VFile } from "vfile/lib";
 import { writeTextFile, BaseDirectory } from "@tauri-apps/api/fs";
 import { serialize } from "remark-slate";
+import Property from "./Property";
 
 const Doc = ({ file }: { file: VFile }) => {
   const [title, setTitle] = useState(file.basename);
@@ -63,6 +64,8 @@ const Doc = ({ file }: { file: VFile }) => {
             {props.children}
           </h6>
         );
+      case "property":
+        return <Property {...props} />;
 
       default:
         return <div {...props.attributes}>{props.children}</div>;
@@ -72,6 +75,7 @@ const Doc = ({ file }: { file: VFile }) => {
   const renderLeaf = (props: RenderLeafProps) => {
     return (
       <p
+        {...props.attributes}
         className={`${props.leaf.italic ? "italic" : null} ${
           props.leaf.bold ? "font-bold" : null
         } `}
@@ -91,7 +95,23 @@ const Doc = ({ file }: { file: VFile }) => {
       <div className="flex h-full w-full flex-col">
         {initialValue ? (
           <Slate editor={editor} value={initialValue.current}>
-            <Editable renderElement={renderElement} renderLeaf={renderLeaf} />
+            <Editable
+              renderElement={renderElement}
+              renderLeaf={renderLeaf}
+              onKeyDown={(event) => {
+                if (event.key === "/" && event.ctrlKey) {
+                  event.preventDefault();
+                  const [match] = Editor.nodes(editor, {
+                    match: (node) => node.type === "property",
+                  });
+                  Transforms.setNodes(
+                    editor,
+                    { type: match ? "paragraph" : "property" },
+                    { match: (node) => Editor.isBlock(editor, node) }
+                  );
+                }
+              }}
+            />
           </Slate>
         ) : (
           <div>lul</div>
