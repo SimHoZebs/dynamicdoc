@@ -3,9 +3,8 @@ import { z } from 'zod';
 import db from '../../lib/util/db';
 
 const pageRouter = router({
-
   get: procedure
-    .input(z.object({ id: z.number(), authorId: z.number() }))
+    .input(z.object({ id: z.string() }))
     .query(async ({ input }) => {
       const page = await db.page.findFirst({
         where: {
@@ -17,7 +16,8 @@ const pageRouter = router({
       });
       if (!page) return page;
 
-      const sortedBlockArray = page.blockOrder.map((id) => {
+      const blockOrder = page.blockOrder.split(",").map((id) => (id));
+      const sortedBlockArray = blockOrder.map((id) => {
         const block = page.blockArray.find(block => block.id === id);
         return block
           ? block
@@ -34,19 +34,15 @@ const pageRouter = router({
     }),
 
   getAll: procedure
-    .input(z.number())
-    .query(({ input }) => {
-      return db.page.findMany({
-        where: {
-          authorId: input
-        }
-      });
+    .input(z.void())
+    .query(() => {
+      return db.page.findMany();
     }),
 
   create: procedure
     .input(z.object({
       title: z.string(),
-      authorId: z.number()
+      blockOrder: z.string()
     }))
     .mutation(({ input }) => {
       return db.page.create({
@@ -57,8 +53,8 @@ const pageRouter = router({
   updateBlockOrder: procedure
     .input(
       z.object({
-        pageId: z.number(),
-        blockOrder: z.array(z.number())
+        pageId: z.string(),
+        blockOrder: z.string()
       })
     )
     .mutation(({ input }) => {

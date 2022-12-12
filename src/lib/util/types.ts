@@ -1,5 +1,6 @@
 import { BaseEditor } from 'slate';
 import { ReactEditor } from 'slate-react';
+import { Block, Page } from "@prisma/client";
 
 
 // TypeScript users only add this code
@@ -10,6 +11,13 @@ type CustomText = {
   bold?: boolean;
   strikethrough?: boolean;
   property?: boolean;
+  type?: "property";
+};
+
+export type ClientSideBlock = Omit<Block, "id"> | Block;
+
+export interface PageWithBlocks extends Page {
+  blockArray: ClientSideBlock[];
 };
 
 type HeadingOneElement = { type: 'heading_one'; children: CustomText[]; };

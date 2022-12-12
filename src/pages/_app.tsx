@@ -8,11 +8,10 @@ function MyApp({ Component, pageProps }: AppProps) {
   return (
     <>
       <script src="http://localhost:8097"></script>
-      {/* <ReactQueryDevtools initialIsOpen={true} /> */}
+      <ReactQueryDevtools initialIsOpen={true} />
       <Component {...pageProps} />
     </>
   );
 }
 
-//export default trpc.withTRPC(MyApp);
-export default MyApp;
+export default trpc.withTRPC(MyApp);
