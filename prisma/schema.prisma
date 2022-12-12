@@ -6,29 +6,21 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id   Int    @id @default(autoincrement())
-  name String
-  page Page[]
-}
-
 model Page {
-  id         Int     @id @default(autoincrement())
+  id         String     @id @default(uuid())
   title      String
-  author     User    @relation(fields: [authorId], references: [id])
-  authorId   Int
   blockArray Block[]
-  blockOrder Int[]
+  blockOrder String
 }
 
 model Block {
-  id      Int    @id @default(autoincrement())
+  id      String    @id @default(uuid())
   type    String
   content String
   page    Page   @relation(fields: [pageId], references: [id])
-  pageId  Int
+  pageId  String
 }
