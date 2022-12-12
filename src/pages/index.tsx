@@ -1,7 +1,7 @@
 import { useState } from "react";
 import Sidebar from "../lib/component/Sidebar";
 import Doc from "../lib/component/Doc";
-import { PageWithBlocks as DocProps } from "../lib/util/types";
+import { Doc as DocProps } from "../lib/util/types";
 
 const Home = () => {
   const [selectedDoc, setSelectedDoc] = useState<DocProps | null>(null);

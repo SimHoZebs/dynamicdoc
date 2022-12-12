@@ -3,10 +3,10 @@ import remarkParse from "remark-parse";
 import remarkSlate from "remark-slate";
 import { unified } from "unified";
 import { trpc } from "../util/trpc";
-import { PageWithBlocks } from "../util/types";
+import { CustomElement, Doc } from "../util/types";
 
 interface Props {
-  setSelectedDoc: React.Dispatch<React.SetStateAction<PageWithBlocks | null>>;
+  setSelectedDoc: React.Dispatch<React.SetStateAction<Doc | null>>;
 }
 
 const Sidebar = (props: Props) => {
@@ -29,8 +29,22 @@ const Sidebar = (props: Props) => {
                 className="rounded p-1 hover:bg-dark-200"
                 key={index}
                 onClick={async () => {
-                  const selectedDoc = await util.page.get.fetch({ id: doc.id });
-                  props.setSelectedDoc(selectedDoc);
+                  const docBlockArray = await util.block.getAll.fetch(doc.id);
+                  const slateAST = await convertFile(docBlockArray.join("\n"));
+                  if ((slateAST.result as CustomElement[]).length === 0) {
+                    slateAST.result = [
+                      {
+                        type: "paragraph",
+                        children: [{ text: "" }],
+                      },
+                    ];
+                  }
+                  console.log(slateAST);
+
+                  props.setSelectedDoc({
+                    ...doc,
+                    slateAST,
+                  });
                 }}
               >
                 {doc.title}
