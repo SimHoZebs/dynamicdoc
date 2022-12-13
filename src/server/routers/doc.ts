@@ -20,12 +20,18 @@ const docRouter = router({
       return block
         ? block
         : {
-            id: id,
+            id,
             type: "paragraph",
             docId: input,
-            text: "This block's ID was found, but content could not be found. I'd write a better error message, but I have no idea how this could even be possible.",
-            childrenId: null,
+            children: [
+              {
+                parentId: id,
+                text: "This block's ID was found, but content could not be found. I'd write a better error message, but I have no idea how this could even be possible.",
+              },
+            ],
+            text: null,
             special: null,
+            parentId: null,
           };
     });
 

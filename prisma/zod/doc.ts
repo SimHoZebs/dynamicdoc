@@ -1,6 +1,6 @@
 import * as z from "zod"
 import * as imports from "../null"
-import { CompleteBlock, RelatedBlockModel } from "./index"
+import { CompleteParentBlock, RelatedParentBlockModel } from "./index"
 
 export const DocModel = z.object({
   id: z.string(),
@@ -9,7 +9,7 @@ export const DocModel = z.object({
 })
 
 export interface CompleteDoc extends z.infer<typeof DocModel> {
-  blockArray: CompleteBlock[]
+  blockArray: CompleteParentBlock[]
 }
 
 /**
@@ -18,5 +18,5 @@ export interface CompleteDoc extends z.infer<typeof DocModel> {
  * NOTE: Lazy required in case of potential circular dependencies within schema
  */
 export const RelatedDocModel: z.ZodSchema<CompleteDoc> = z.lazy(() => DocModel.extend({
-  blockArray: RelatedBlockModel.array(),
+  blockArray: RelatedParentBlockModel.array(),
 }))

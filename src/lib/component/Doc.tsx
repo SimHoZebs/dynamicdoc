@@ -14,7 +14,7 @@ import { trpc } from "../util/trpc";
 
 const Doc = (props: DocWithContent) => {
   const [title, setTitle] = useState(props.title);
-  const initialValue = useRef(props.slateAST.result as Descendant[]);
+  const initialValue = useRef(props.content);
   const updateDoc = trpc.doc.updateBlockOrder.useMutation();
   const [editor] = useState(() => withReact(createEditor()));
 
@@ -84,9 +84,9 @@ const Doc = (props: DocWithContent) => {
     return (
       <p
         {...props.attributes}
-        className={`${props.leaf.italic ? "italic" : null} ${
-          props.leaf.bold ? "font-bold" : null
-        } `}
+        className={`${props.leaf.special === "italic" ? "italic" : null} ${
+          props.leaf.special === "bold" ? "font-bold" : null
+        }`}
       >
         {props.children}
       </p>
@@ -106,6 +106,7 @@ const Doc = (props: DocWithContent) => {
 
       <div className="flex h-full w-full flex-col">
         {initialValue ? (
+          //childBlock being nullish is the issue here
           <Slate editor={editor} value={initialValue.current}>
             <Editable
               renderElement={renderElement}

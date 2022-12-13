@@ -36,18 +36,26 @@ datasource db {
 model Doc {
   id         String     @id @default(uuid())
   title      String
-  blockArray Block[]
+  blockArray ParentBlock[]
   blockOrder String[]
 }
 
-model Block {
+model ParentBlock {
   doc    Doc   @relation(fields: [docId], references: [id])
   docId  String 
   id      String    @id @default(uuid())
-  type    String?
-  text String?
-  special String? //strikethrough, bold, italic, link, etc.
-  parent Block? @relation("Block")
-  children  Block?   @relation("Block", fields: [childrenId], references:[id])
-  childrenId String? @unique
+  type    String
+  children  ChildBlock[]
+}
+
+model ChildBlock{
+  id     String    @id @default(uuid())
+  parent ParentBlock? @relation(fields: [parentId], references: [id])
+  parentId String?
+  text   String?
+  type   String?
+  special String?
+  prevChild ChildBlock? @relation("Child", fields: [prevChildId], references: [id])
+  prevChildId String?
+  children ChildBlock[] @relation("Child")
 }

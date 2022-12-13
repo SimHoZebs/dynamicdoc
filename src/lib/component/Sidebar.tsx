@@ -1,9 +1,6 @@
 import React from "react";
-import remarkParse from "remark-parse";
-import remarkSlate from "remark-slate";
-import { unified } from "unified";
 import { trpc } from "../util/trpc";
-import { CustomElement, DocWithContent } from "../util/types";
+import { DocWithContent } from "../util/types";
 
 interface Props {
   setSelectedDoc: React.Dispatch<React.SetStateAction<DocWithContent | null>>;
@@ -12,11 +9,8 @@ interface Props {
 const Sidebar = (props: Props) => {
   const getPageArray = trpc.doc.getAll.useQuery();
   const createDoc = trpc.doc.create.useMutation();
-  const util = trpc.useContext();
-
-  const convertFile = async (content: string) => {
-    return unified().use(remarkParse).use(remarkSlate).process(content);
-  };
+  const createBlock = trpc.block.create.useMutation();
+  const query = trpc.useContext();
 
   return (
     <div className="flex min-w-[180px] flex-col items-center justify-start gap-y-2 bg-dark-700 p-3">
@@ -29,22 +23,18 @@ const Sidebar = (props: Props) => {
                 className="rounded p-1 hover:bg-dark-200"
                 key={index}
                 onClick={async () => {
-                  const docBlockArray = await util.block.getAll.fetch(doc.id);
-                  const slateAST = await convertFile(docBlockArray.join("\n"));
-                  if ((slateAST.result as CustomElement[]).length === 0) {
-                    slateAST.result = [
-                      {
-                        type: "paragraph",
-                        children: [{ text: "" }],
-                      },
-                    ];
-                  }
-                  console.log(slateAST);
+                  const docBlockArray = await query.block.getAll.fetch(doc.id);
+                  if (docBlockArray.length === 0) {
+                    const newBlock = await createBlock.mutateAsync({
+                      docId: doc.id,
+                      type: "paragraph",
+                    });
+                    if (!newBlock) return;
 
-                  props.setSelectedDoc({
-                    ...doc,
-                    slateAST,
-                  });
+                    docBlockArray.push(newBlock);
+                  }
+
+                  props.setSelectedDoc({ ...doc, content: docBlockArray });
                 }}
               >
                 {doc.title}
