@@ -10,17 +10,18 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Page {
+model Doc {
   id         String     @id @default(uuid())
   title      String
   blockArray Block[]
   blockOrder String
+	@@map("Page")
 }
 
 model Block {
   id      String    @id @default(uuid())
   type    String
   content String
-  page    Page   @relation(fields: [pageId], references: [id])
+  page    Doc   @relation(fields: [pageId], references: [id])
   pageId  String
 }

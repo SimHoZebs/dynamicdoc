@@ -1,18 +1,18 @@
-import React from "react";
+import { Doc } from "@prisma/client";
+import React, { useState } from "react";
 import remarkParse from "remark-parse";
 import remarkSlate from "remark-slate";
 import { unified } from "unified";
-import { trpc } from "../util/trpc";
-import { CustomElement, Doc } from "../util/types";
+import block from "../function/block";
+import doc from "../function/doc";
+import { CustomElement, DocWithContent } from "../util/types";
 
 interface Props {
-  setSelectedDoc: React.Dispatch<React.SetStateAction<Doc | null>>;
+  setSelectedDoc: React.Dispatch<React.SetStateAction<DocWithContent | null>>;
 }
 
 const Sidebar = (props: Props) => {
-  const getPageArray = trpc.page.getAll.useQuery();
-  const createDoc = trpc.page.create.useMutation();
-  const util = trpc.useContext();
+  const [pageArray, setPageArray] = useState<Doc[]>();
 
   const convertFile = async (content: string) => {
     return unified().use(remarkParse).use(remarkSlate).process(content);
@@ -23,13 +23,13 @@ const Sidebar = (props: Props) => {
       <div>Hello</div>
 
       <div className="flex flex-col">
-        {getPageArray.data
-          ? getPageArray.data.map((doc, index) => (
+        {pageArray
+          ? pageArray.map((doc, index) => (
               <button
                 className="rounded p-1 hover:bg-dark-200"
                 key={index}
                 onClick={async () => {
-                  const docBlockArray = await util.block.getAll.fetch(doc.id);
+                  const docBlockArray = await block.getAll(doc.id);
                   const slateAST = await convertFile(docBlockArray.join("\n"));
                   if ((slateAST.result as CustomElement[]).length === 0) {
                     slateAST.result = [
@@ -56,11 +56,9 @@ const Sidebar = (props: Props) => {
       <button
         className="flex rounded bg-blue-500 py-1 px-2 text-xs"
         onClick={async () => {
-          await createDoc.mutateAsync({
-            title: "New document",
-            blockOrder: "",
-          });
-          getPageArray.refetch();
+          await doc.create("New document", "");
+          const pageArray = await doc.getAll();
+          setPageArray(pageArray);
         }}
       >
         Create document

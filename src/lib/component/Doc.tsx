@@ -7,16 +7,13 @@ import {
   RenderElementProps,
   RenderLeafProps,
 } from "slate-react";
-import { serialize } from "remark-slate";
 import Property from "./Property";
-import { Doc } from "../util/types";
+import { DocWithContent } from "../util/types";
 import Line from "./Line";
-import { trpc } from "../util/trpc";
 
-const Doc = (props: Doc) => {
+const Doc = (props: DocWithContent) => {
   const [title, setTitle] = useState(props.title);
   const initialValue = useRef(props.slateAST.result as Descendant[]);
-  const updateDoc = trpc.page.updateBlockOrder.useMutation();
   const [editor] = useState(() => withReact(createEditor()));
 
   useEffect(() => {
