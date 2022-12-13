@@ -1,10 +1,10 @@
 import { useState } from "react";
 import Sidebar from "../lib/component/Sidebar";
 import Doc from "../lib/component/Doc";
-import { Doc as DocProps } from "../lib/util/types";
+import { DocWithContent } from "../lib/util/types";
 
 const Home = () => {
-  const [selectedDoc, setSelectedDoc] = useState<DocProps | null>(null);
+  const [selectedDoc, setSelectedDoc] = useState<DocWithContent | null>(null);
 
   return (
     <div className="flex h-screen w-screen bg-dark-900 text-gray-200">

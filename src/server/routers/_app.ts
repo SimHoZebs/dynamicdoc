@@ -1,10 +1,10 @@
-import { router } from '../trpc';
-import pageRouter from './page';
-import blockRouter from './block';
+import { router } from "../trpc";
+import docRouter from "./doc";
+import blockRouter from "./block";
 
 export const appRouter = router({
-  page: pageRouter,
-  block: blockRouter
+  doc: docRouter,
+  block: blockRouter,
 });
 
 export const caller = appRouter.createCaller({});

@@ -2,11 +2,11 @@ import { procedure, router } from "../trpc";
 import { z } from "zod";
 import db from "../../lib/util/db";
 
-const pageRouter = router({
+const docRouter = router({
   get: procedure
     .input(z.object({ id: z.string() }))
     .query(async ({ input }) => {
-      const page = await db.page.findFirst({
+      const doc = await db.doc.findFirst({
         where: {
           ...input,
         },
@@ -14,26 +14,26 @@ const pageRouter = router({
           blockArray: true,
         },
       });
-      if (!page) return page;
+      if (!doc) return doc;
 
-      const sortedBlockArray = page.blockOrder.map((id) => {
-        const block = page.blockArray.find((block) => block.id === id);
+      const sortedBlockArray = doc.blockOrder.map((id) => {
+        const block = doc.blockArray.find((block) => block.id === id);
         return block
           ? block
           : {
               id: id,
               type: "",
-              pageId: input.id,
+              docId: input.id,
               content: "This line was found, but could not find the content.",
             };
       });
 
-      page.blockArray = sortedBlockArray;
-      return page;
+      doc.blockArray = sortedBlockArray;
+      return doc;
     }),
 
   getAll: procedure.input(z.void()).query(() => {
-    return db.page.findMany();
+    return db.doc.findMany();
   }),
 
   create: procedure
@@ -44,7 +44,7 @@ const pageRouter = router({
       })
     )
     .mutation(({ input }) => {
-      return db.page.create({
+      return db.doc.create({
         data: input,
       });
     }),
@@ -52,14 +52,14 @@ const pageRouter = router({
   updateBlockOrder: procedure
     .input(
       z.object({
-        pageId: z.string(),
+        docId: z.string(),
         blockOrder: z.string(),
       })
     )
     .mutation(({ input }) => {
-      return db.page.update({
+      return db.doc.update({
         where: {
-          id: input.pageId,
+          id: input.docId,
         },
         data: {
           blockOrder: input.blockOrder,
@@ -67,4 +67,4 @@ const pageRouter = router({
       });
     }),
 });
-export default pageRouter;
+export default docRouter;

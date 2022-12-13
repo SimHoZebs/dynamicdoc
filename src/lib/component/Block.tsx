@@ -3,7 +3,7 @@ import { RenderElementProps } from "slate-react";
 
 interface Props extends Pick<RenderElementProps, "attributes" | "children"> {}
 
-const Line = (props: Props) => {
+const Block = (props: Props) => {
   useEffect(() => {
     console.log("Line created");
   }, []);
@@ -11,4 +11,4 @@ const Line = (props: Props) => {
   return <div {...props.attributes}>{props.children}</div>;
 };
 
-export default Line;
+export default Block;

@@ -7,16 +7,15 @@ import {
   RenderElementProps,
   RenderLeafProps,
 } from "slate-react";
-import { serialize } from "remark-slate";
 import Property from "./Property";
-import { Doc } from "../util/types";
-import Line from "./Line";
+import { DocWithContent } from "../util/types";
+import Block from "./Block";
 import { trpc } from "../util/trpc";
 
-const Doc = (props: Doc) => {
+const Doc = (props: DocWithContent) => {
   const [title, setTitle] = useState(props.title);
   const initialValue = useRef(props.slateAST.result as Descendant[]);
-  const updateDoc = trpc.page.updateBlockOrder.useMutation();
+  const updateDoc = trpc.doc.updateBlockOrder.useMutation();
   const [editor] = useState(() => withReact(createEditor()));
 
   useEffect(() => {
@@ -31,52 +30,52 @@ const Doc = (props: Doc) => {
     switch (props.element.type) {
       case "heading_one":
         return (
-          <Line attributes={props.attributes}>
+          <Block attributes={props.attributes}>
             <h1 className="text-4xl">{props.children}</h1>
-          </Line>
+          </Block>
         );
       case "heading_two":
         return (
-          <Line attributes={props.attributes}>
+          <Block attributes={props.attributes}>
             <h2 className={`text-3xl ${props.element.children}`}>
               {props.children}
             </h2>
-          </Line>
+          </Block>
         );
       case "heading_three":
         return (
-          <Line attributes={props.attributes}>
+          <Block attributes={props.attributes}>
             <h3 className="text-2xl">{props.children}</h3>
-          </Line>
+          </Block>
         );
       case "heading_four":
         return (
-          <Line attributes={props.attributes}>
+          <Block attributes={props.attributes}>
             <h4 className="text-xl" {...props.attributes}>
               {props.children}
             </h4>
-          </Line>
+          </Block>
         );
       case "heading_five":
         return (
-          <Line attributes={props.attributes}>
+          <Block attributes={props.attributes}>
             <h5 className="text-lg">{props.children}</h5>
-          </Line>
+          </Block>
         );
       case "heading_six":
         return (
-          <Line attributes={props.attributes}>
+          <Block attributes={props.attributes}>
             <h6 className="text-base">{props.children}</h6>
-          </Line>
+          </Block>
         );
       case "property":
         return <Property {...props} />;
 
       default:
         return (
-          <Line attributes={props.attributes}>
+          <Block attributes={props.attributes}>
             <div>{props.children}</div>
-          </Line>
+          </Block>
         );
     }
   };

@@ -3,15 +3,15 @@ import remarkParse from "remark-parse";
 import remarkSlate from "remark-slate";
 import { unified } from "unified";
 import { trpc } from "../util/trpc";
-import { CustomElement, Doc } from "../util/types";
+import { CustomElement, DocWithContent } from "../util/types";
 
 interface Props {
-  setSelectedDoc: React.Dispatch<React.SetStateAction<Doc | null>>;
+  setSelectedDoc: React.Dispatch<React.SetStateAction<DocWithContent | null>>;
 }
 
 const Sidebar = (props: Props) => {
-  const getPageArray = trpc.page.getAll.useQuery();
-  const createDoc = trpc.page.create.useMutation();
+  const getPageArray = trpc.doc.getAll.useQuery();
+  const createDoc = trpc.doc.create.useMutation();
   const util = trpc.useContext();
 
   const convertFile = async (content: string) => {
