@@ -4,11 +4,21 @@ import { procedure, router } from '../trpc';
 
 const blockRouter = router({
   get: procedure
-    .input(z.number())
-    .mutation(({ input }) => {
+    .input(z.string())
+    .query(({ input }) => {
       return db.block.findFirst({
         where: {
           id: input
+        }
+      });
+    }),
+
+  getAll: procedure
+    .input(z.string())
+    .query(({ input }) => {
+      return db.block.findMany({
+        where: {
+          pageId: input
         }
       });
     }),
@@ -18,7 +28,7 @@ const blockRouter = router({
       z.object({
         type: z.string(),
         content: z.string(),
-        pageId: z.number()
+        pageId: z.string()
       }))
     .mutation(({ input }) => {
       return db.block.create({
@@ -28,7 +38,7 @@ const blockRouter = router({
 
   update: procedure
     .input(z.object({
-      id: z.number(),
+      id: z.string(),
       content: z.string()
     }))
     .mutation(({ input }) => {
@@ -41,7 +51,7 @@ const blockRouter = router({
     }),
 
   del: procedure
-    .input(z.number())
+    .input(z.string())
     .mutation(({ input }) => {
       return db.block.delete({
         where: {

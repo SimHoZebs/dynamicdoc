@@ -1,12 +1,43 @@
-import { Block, Prisma } from "@prisma/client";
+import { BaseEditor } from 'slate';
+import { ReactEditor } from 'slate-react';
+import { Block, Page } from "@prisma/client";
+import { VFile } from "vfile/lib";
 
-//This makes it so that there is two places to get types, which is not ideal.
-//How do I solve that?
-
-export type PageWithBlockArray = Prisma.PageGetPayload<{
-  include: {
-    blockArray: true;
-  };
-}>;
 
 export type ClientSideBlock = Omit<Block, "id"> | Block;
+
+export interface PageWithBlocks extends Page {
+  blockArray: ClientSideBlock[];
+};
+
+export interface Doc extends Page {
+  slateAST: VFile;
+}
+
+type CustomText = {
+  text: string;
+  italic?: boolean;
+  bold?: boolean;
+  strikethrough?: boolean;
+  property?: boolean;
+  type?: "property";
+};
+
+type HeadingOneElement = { type: 'heading_one'; children: CustomText[]; };
+type HeadingTwoElement = { type: 'heading_two'; children: CustomText[]; };
+type HeadingThreeElement = { type: 'heading_three'; children: CustomText[]; };
+type HeadingFourElement = { type: 'heading_four'; children: CustomText[]; };
+type HeadingFiveElement = { type: 'heading_five'; children: CustomText[]; };
+type HeadingSixElement = { type: 'heading_six'; children: CustomText[]; };
+type ParagraphElement = { type: 'paragraph'; children: CustomText[]; };
+type PropertyElement = { type: 'property'; children: CustomText[]; };
+
+export type CustomElement = HeadingOneElement | HeadingTwoElement | HeadingThreeElement | HeadingFourElement | HeadingFiveElement | HeadingSixElement | ParagraphElement | PropertyElement;
+
+declare module 'slate' {
+  interface CustomTypes {
+    Editor: BaseEditor & ReactEditor;
+    Element: CustomElement;
+    Text: CustomText;
+  }
+}

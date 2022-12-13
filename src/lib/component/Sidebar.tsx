@@ -1,60 +1,53 @@
-import { User } from "@prisma/client";
-import { useRouter } from "next/router";
-import React, { useEffect } from "react";
-import { useStoreActions, useStoreState } from "../util/globalStates";
+import React from "react";
+import remarkParse from "remark-parse";
+import remarkSlate from "remark-slate";
+import { unified } from "unified";
 import { trpc } from "../util/trpc";
-import { PageWithBlockArray } from "../util/types";
+import { CustomElement, Doc } from "../util/types";
 
 interface Props {
-  setSelectedPage: React.Dispatch<
-    React.SetStateAction<PageWithBlockArray | null>
-  >;
-  user: User | null;
+  setSelectedDoc: React.Dispatch<React.SetStateAction<Doc | null>>;
 }
 
 const Sidebar = (props: Props) => {
-  const user = useStoreState((state) => state.user);
-  const setUser = useStoreActions((actions) => actions.setUser);
-  const router = useRouter();
-  const createPage = trpc.page.create.useMutation();
+  const getPageArray = trpc.page.getAll.useQuery();
+  const createDoc = trpc.page.create.useMutation();
   const util = trpc.useContext();
-  const { data: pageArray, refetch: refetchPageArray } =
-    trpc.page.getAll.useQuery(user.id);
 
-  useEffect(() => {
-    async function test() {
-      const user = props.user;
-      if (!user) {
-        router.push("/");
-        return;
-      }
-      setUser(user);
-    }
-    test();
-  }, [props.user, router, setUser]);
+  const convertFile = async (content: string) => {
+    return unified().use(remarkParse).use(remarkSlate).process(content);
+  };
 
   return (
     <div className="flex min-w-[180px] flex-col items-center justify-start gap-y-2 bg-dark-700 p-3">
-      <div>Username: {user.name}</div>
+      <div>Hello</div>
 
       <div className="flex flex-col">
-        {pageArray
-          ? pageArray.map((document, index) => (
+        {getPageArray.data
+          ? getPageArray.data.map((doc, index) => (
               <button
                 className="rounded p-1 hover:bg-dark-200"
                 key={index}
                 onClick={async () => {
-                  const selectedPage = await util.page.get.fetch({
-                    id: document.id,
-                    authorId: user.id,
-                  });
-
-                  if (selectedPage) {
-                    props.setSelectedPage(selectedPage);
+                  const docBlockArray = await util.block.getAll.fetch(doc.id);
+                  const slateAST = await convertFile(docBlockArray.join("\n"));
+                  if ((slateAST.result as CustomElement[]).length === 0) {
+                    slateAST.result = [
+                      {
+                        type: "paragraph",
+                        children: [{ text: "" }],
+                      },
+                    ];
                   }
+                  console.log(slateAST);
+
+                  props.setSelectedDoc({
+                    ...doc,
+                    slateAST,
+                  });
                 }}
               >
-                {document.title}
+                {doc.title}
               </button>
             ))
           : null}
@@ -62,12 +55,12 @@ const Sidebar = (props: Props) => {
 
       <button
         className="flex rounded bg-blue-500 py-1 px-2 text-xs"
-        onClick={() => {
-          createPage.mutate({
-            title: "Untitled document",
-            authorId: user.id,
+        onClick={async () => {
+          await createDoc.mutateAsync({
+            title: "New document",
+            blockOrder: "",
           });
-          refetchPageArray();
+          getPageArray.refetch();
         }}
       >
         Create document
