@@ -17,10 +17,11 @@ const Doc = (props: DocWithContent) => {
   const initialValue = useRef(props.content);
   const updateDoc = trpc.doc.updateBlockOrder.useMutation();
   const [editor] = useState(() => withReact(createEditor()));
+  const [lineLength, setLineLength] = useState(editor.children.length);
 
   useEffect(() => {
     //when editor creates a new line, add a new block to the database
-  }, []);
+  }, [lineLength]);
 
   const saveDoc = () => {
     //infer the block order from the slate AST and save it to the database
@@ -80,7 +81,7 @@ const Doc = (props: DocWithContent) => {
 
   const renderLeaf = (props: RenderLeafProps) => {
     return (
-      <p
+      <span
         {...props.attributes}
         className={`${
           props.leaf.special === "italic"
@@ -88,11 +89,10 @@ const Doc = (props: DocWithContent) => {
             : props.leaf.special === "bold"
             ? "font-bold"
             : ""
-        }
         }`}
       >
         {props.children}
-      </p>
+      </span>
     );
   };
 
