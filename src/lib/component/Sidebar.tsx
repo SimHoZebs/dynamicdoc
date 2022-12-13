@@ -58,7 +58,7 @@ const Sidebar = (props: Props) => {
         onClick={async () => {
           await createDoc.mutateAsync({
             title: "New document",
-            blockOrder: "",
+            blockOrder: [],
           });
           getPageArray.refetch();
         }}

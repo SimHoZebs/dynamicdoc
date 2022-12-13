@@ -37,7 +37,7 @@ const docRouter = router({
     return db.doc.findMany();
   }),
 
-  create: procedure.input(DocModel).mutation(({ input }) => {
+  create: procedure.input(DocModel.omit({ id: true })).mutation(({ input }) => {
     return db.doc.create({
       data: input,
     });
