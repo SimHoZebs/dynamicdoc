@@ -15,25 +15,11 @@ const docRouter = router({
     });
     if (!doc) return doc;
 
-    const sortedBlockArray = doc.blockOrder.map((id) => {
-      const block = doc.blockArray.find((block) => block.id === id);
-      return block
-        ? block
-        : {
-            id,
-            type: "paragraph",
-            docId: input,
-            children: [
-              {
-                parentId: id,
-                text: "This block's ID was found, but content could not be found. I'd write a better error message, but I have no idea how this could even be possible.",
-              },
-            ],
-            text: null,
-            special: null,
-            parentId: null,
-          };
-    });
+    const sortedBlockArray = doc.blockArray.sort(
+      (currBlock, nextBlock) =>
+        doc.blockOrder.indexOf(currBlock.id) -
+        doc.blockOrder.indexOf(nextBlock.id)
+    );
 
     doc.blockArray = sortedBlockArray;
     return doc;
@@ -53,7 +39,7 @@ const docRouter = router({
     .input(
       z.object({
         docId: z.string(),
-        blockOrder: z.string(),
+        blockOrder: z.array(z.string()),
       })
     )
     .mutation(({ input }) => {

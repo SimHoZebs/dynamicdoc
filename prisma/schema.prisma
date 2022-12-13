@@ -40,6 +40,8 @@ model Doc {
   blockOrder String[]
 }
 
+//The blocks are distinguished because only ParentBlock should be assigned to a docId and must have children, whereas ChildBlock is assigned to a ParentBlockId and may not have children. ParentBlock also can't have text, whereas ChildBlock can.
+//Sure, I can make a single model with nullable fields, but that forces null checks.
 model ParentBlock {
   doc    Doc   @relation(fields: [docId], references: [id])
   docId  String 

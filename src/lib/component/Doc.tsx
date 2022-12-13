@@ -37,9 +37,7 @@ const Doc = (props: DocWithContent) => {
       case "heading_two":
         return (
           <Block attributes={props.attributes}>
-            <h2 className={`text-3xl ${props.element.children}`}>
-              {props.children}
-            </h2>
+            <h2 className="text-3xl">{props.children}</h2>
           </Block>
         );
       case "heading_three":
@@ -84,8 +82,13 @@ const Doc = (props: DocWithContent) => {
     return (
       <p
         {...props.attributes}
-        className={`${props.leaf.special === "italic" ? "italic" : null} ${
-          props.leaf.special === "bold" ? "font-bold" : null
+        className={`${
+          props.leaf.special === "italic"
+            ? "italic"
+            : props.leaf.special === "bold"
+            ? "font-bold"
+            : ""
+        }
         }`}
       >
         {props.children}

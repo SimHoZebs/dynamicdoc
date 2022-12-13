@@ -3,7 +3,7 @@ import { ReactEditor } from "slate-react";
 import { ParentBlock, Doc, ChildBlock } from "@prisma/client";
 import { CompleteChildBlock, CompleteParentBlock } from "../../../prisma/zod";
 
-type ParentBlockWithChildren = ParentBlock & {
+export type ParentBlockWithChildren = ParentBlock & {
   children: ChildBlock[];
 };
 
@@ -30,10 +30,12 @@ export type CustomElement =
   | ParagraphElement
   | PropertyElement;
 
+// Slate's Descendant type expects Element to be either itself or a Text node for cases where an Element nests another Element (list).
+// The problem is, our DB does not expect ParentBlock (Element) to nest itself, but only ChildBlock nodes - a block designed that can fufill the function of a ParentBlock.
 declare module "slate" {
   interface CustomTypes {
     Editor: BaseEditor & ReactEditor;
-    Element: CustomElement;
+    Element: ParentBlockWithChildren | ChildBlock;
     Text: ChildBlock;
   }
 }
