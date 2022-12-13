@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { BlockModel } from "../../../prisma/zod";
 import db from "../../lib/util/db";
 import { procedure, router } from "../trpc";
 
@@ -16,38 +17,26 @@ const blockRouter = router({
       where: {
         docId: input,
       },
+      include: {
+        children: true,
+      },
     });
   }),
 
-  create: procedure
-    .input(
-      z.object({
-        type: z.string(),
-        content: z.string(),
-        docId: z.string(),
-      })
-    )
-    .mutation(({ input }) => {
-      return db.block.create({
-        data: input,
-      });
-    }),
+  create: procedure.input(BlockModel).mutation(({ input }) => {
+    return db.block.create({
+      data: input,
+    });
+  }),
 
-  update: procedure
-    .input(
-      z.object({
-        id: z.string(),
-        content: z.string(),
-      })
-    )
-    .mutation(({ input }) => {
-      return db.block.update({
-        where: {
-          id: input.id,
-        },
-        data: { content: input.content },
-      });
-    }),
+  update: procedure.input(BlockModel).mutation(({ input }) => {
+    return db.block.update({
+      where: {
+        id: input.id,
+      },
+      data: { text: input.text },
+    });
+  }),
 
   del: procedure.input(z.string()).mutation(({ input }) => {
     return db.block.delete({
