@@ -47,19 +47,19 @@ const Doc = (docProps: DocWithContent) => {
     const { apply } = editor;
 
     editor.apply = (op: BaseOperation) => {
-      let newOp = op;
+      let newOp = { ...op };
 
-      if (op.type === "split_node") {
+      if (newOp.type === "split_node") {
         newOp = {
-          ...op,
-          properties: { ...op.properties, id: null },
+          ...newOp,
+          properties: { ...newOp.properties, id: null },
         };
 
         console.log("split_node", newOp);
-      } else if (op.type === "insert_node") {
+      } else if (newOp.type === "insert_node") {
         newOp = {
-          ...op,
-          node: nullify(op.node),
+          ...newOp,
+          node: nullify(newOp.node),
         };
 
         console.log("insert_node", newOp);

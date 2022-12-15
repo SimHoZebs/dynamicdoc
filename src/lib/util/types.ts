@@ -28,12 +28,14 @@ export type CustomElement = {
   children: ClientSideChildBlock[];
 };
 
-// Slate's Descendant type expects Element to be either itself or a Text node for cases where an Element nests another Element (list).
-// The problem is, our DB does not expect ParentBlock (Element) to nest itself, but only ChildBlock nodes - a block designed that can fufill the function of a ParentBlock.
+/**
+ * Slate's Descendant type expects Element to be either itself or a Text node.  This is because an Element can nest itself.
+ * However, the DB schema is designed for Element (ParentBlock) to nest only ChildBlock nodes - The reason for different implementation is described in schema.prisma
+ */
 declare module "slate" {
   interface CustomTypes {
     Editor: BaseEditor & ReactEditor;
-    Element: ParentBlockWithChildren | ClientSideChildBlock;
+    Element: ParentBlockWithChildren;
     Text: ClientSideChildBlock;
   }
 }
