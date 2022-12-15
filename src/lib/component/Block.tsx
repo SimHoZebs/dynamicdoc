@@ -1,11 +1,10 @@
 import React, { useEffect } from "react";
 import { RenderElementProps } from "slate-react";
 
+//TODO: debounce updating block
 const Block = (props: RenderElementProps) => {
   useEffect(() => {
-    return () => {
-      console.log("Line removed", props.element.id);
-    };
+    console.log("my id is", props.element.id);
   }, [props.element.id]);
 
   const WrapperElement = ({ children }: { children: React.ReactNode }) => {

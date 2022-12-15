@@ -33,29 +33,61 @@ const nullify = (node: Node) => {
 
 const Doc = (docProps: DocWithContent) => {
   const [title, setTitle] = useState(docProps.title);
-  const initialValue = useRef([
-    ...docProps.content,
-    // { type: "paragraph", children: [{ text: "" }] },
-  ]);
-  const updateDoc = trpc.doc.updateBlockOrder.useMutation();
+  const initialValue = useRef(docProps.content);
   const [editor, setEditor] = useState(() => withReact(createEditor()));
-  const [lineLength, setLineLength] = useState(editor.children.length);
+  const createBlock = trpc.block.create.useMutation();
 
-  //Change this to somethign that would only run once. It's duplicating on every hot reload.
   useEffect(() => {
-    console.log("editor change");
     const { apply } = editor;
 
-    editor.apply = (op: BaseOperation) => {
-      let newOp = { ...op };
+    const syncWithDB = async (type: string) => {
+      const newBlock = await createBlock.mutateAsync({
+        docId: docProps.id,
+        type,
+      });
 
-      if (newOp.type === "split_node") {
+      //In the future, this should be fetched again on reconnect.
+      if (!newBlock) {
+        console.error(
+          "Failed to create new block. The connection to DB might be down or createBlock request is malformed."
+        );
+        return;
+      }
+
+      //sets a property on the node at selection
+      Transforms.setNodes(editor, {
+        id: newBlock.id,
+      });
+    };
+
+    editor.apply = (op: BaseOperation) => {
+      let newOp: BaseOperation = { ...op };
+      //Would use a switch-case, but typescript doesn't seem to be able to narrow the type when I do that.
+
+      if (newOp.type === "move_node") {
+        console.log("move_node", newOp);
+      } else if (newOp.type === "remove_node") {
+        //delete block
+        console.log("remove_node", newOp);
+      } else if (newOp.type === "split_node") {
+        console.log("split_node", newOp);
         newOp = {
           ...newOp,
-          properties: { ...newOp.properties, id: null },
+          properties: {
+            ...newOp.properties,
+            id: null,
+            parentId: null,
+          },
         };
 
-        console.log("split_node", newOp);
+        if (
+          newOp.path.length === 1 &&
+          "type" in newOp.properties &&
+          typeof newOp.properties.type === "string"
+        ) {
+          console.log("creating block");
+          syncWithDB(newOp.properties.type);
+        }
       } else if (newOp.type === "insert_node") {
         newOp = {
           ...newOp,
@@ -66,7 +98,11 @@ const Doc = (docProps: DocWithContent) => {
       }
       apply(newOp);
     };
-  }, [editor]);
+
+    return () => {
+      editor.apply = apply;
+    };
+  }, [createBlock, docProps.id, editor]);
 
   const saveDoc = () => {
     //infer the block order from the slate AST and save it to the database
@@ -102,25 +138,12 @@ const Doc = (docProps: DocWithContent) => {
 
       <div className="flex h-full w-full flex-col">
         {initialValue ? (
-          //childBlock being nullish is the issue here
-          <Slate
-            editor={editor}
-            value={initialValue.current}
-            onChange={(what) => {}}
-          >
+          <Slate editor={editor} value={initialValue.current}>
             <Editable
               renderElement={(renderElementProps) => {
                 return <Block {...renderElementProps} />;
               }}
               renderLeaf={renderLeaf}
-              onKeyUp={(event) => {
-                if (lineLength > editor.children.length) {
-                  //create block
-                } else if (lineLength < editor.children.length) {
-                  //delete block
-                }
-                setLineLength(editor.children.length);
-              }}
               onKeyDown={(event) => {
                 if (event.key === "/" && event.ctrlKey) {
                   event.preventDefault();
