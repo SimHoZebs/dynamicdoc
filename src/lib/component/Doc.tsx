@@ -105,7 +105,7 @@ const Doc = (docProps: DocWithContent) => {
     return () => {
       editor.apply = apply;
     };
-  }, [createBlock, docProps.id, editor]);
+  }, [createBlock, deleteBlock, docProps.id, editor]);
 
   const saveDoc = () => {
     //infer the block order from the slate AST and save it to the database
