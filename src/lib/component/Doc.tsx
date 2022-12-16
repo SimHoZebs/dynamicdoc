@@ -36,6 +36,7 @@ const Doc = (docProps: DocWithContent) => {
   const initialValue = useRef(docProps.content);
   const [editor, setEditor] = useState(() => withReact(createEditor()));
   const createBlock = trpc.block.create.useMutation();
+  const deleteBlock = trpc.block.del.useMutation();
 
   useEffect(() => {
     const { apply } = editor;
@@ -68,9 +69,12 @@ const Doc = (docProps: DocWithContent) => {
         console.log("move_node", newOp);
       } else if (newOp.type === "remove_node") {
         //delete block
-        console.log("remove_node", newOp);
+        if (typeof newOp.node.id !== "string") {
+          console.error("node id is not a string:", newOp.node.id);
+          return;
+        }
+        deleteBlock.mutateAsync(newOp.node.id);
       } else if (newOp.type === "split_node") {
-        console.log("split_node", newOp);
         newOp = {
           ...newOp,
           properties: {
@@ -85,7 +89,6 @@ const Doc = (docProps: DocWithContent) => {
           "type" in newOp.properties &&
           typeof newOp.properties.type === "string"
         ) {
-          console.log("creating block");
           syncWithDB(newOp.properties.type);
         }
       } else if (newOp.type === "insert_node") {
