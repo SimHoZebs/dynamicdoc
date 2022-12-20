@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
-import { createEditor, Editor, Transforms, Node, BaseOperation } from "slate";
-import { Slate, Editable, withReact, RenderLeafProps } from "slate-react";
+import { createEditor, Transforms, Node, BaseOperation } from "slate";
+import { Slate, Editable, withReact } from "slate-react";
 import {
   ClientSideChildBlock,
   DocWithContent,
@@ -9,32 +9,32 @@ import {
 import Block from "./Block";
 import { trpc } from "../util/trpc";
 
-const nullify = (node: Node) => {
-  let nullifiedNode = {
+const nullifiedNode = (node: Node) => {
+  let targetNode = {
     ...node,
   } as ParentBlockWithChildren | ClientSideChildBlock;
 
-  nullifiedNode.id = null;
+  targetNode.id = null;
 
-  if ("parentId" in nullifiedNode) {
-    nullifiedNode.prevChildId = null;
-    nullifiedNode.parentId = null;
+  if ("parentId" in targetNode) {
+    targetNode.prevChildId = null;
+    targetNode.parentId = null;
   }
 
-  if ("children" in nullifiedNode && nullifiedNode.children.length !== 0) {
-    nullifiedNode.children = nullifiedNode.children.map(
-      (child) => nullify(child) as ClientSideChildBlock
+  if ("children" in targetNode && targetNode.children.length !== 0) {
+    targetNode.children = targetNode.children.map(
+      (child) => nullifiedNode(child) as ClientSideChildBlock
     );
-    return nullifiedNode;
+    return targetNode;
   } else {
-    return nullifiedNode;
+    return targetNode;
   }
 };
 
 const Doc = (docProps: DocWithContent) => {
   const [title, setTitle] = useState(docProps.title);
   const initialValue = useRef(docProps.content);
-  const [editor, setEditor] = useState(() => withReact(createEditor()));
+  const [editor] = useState(() => withReact(createEditor()));
   const createBlock = trpc.block.create.useMutation();
   const deleteBlock = trpc.block.del.useMutation();
 
@@ -65,6 +65,37 @@ const Doc = (docProps: DocWithContent) => {
       let newOp: BaseOperation = { ...op };
       //Would use a switch-case, but typescript doesn't seem to be able to narrow the type when I do that.
 
+      if (newOp.type === "insert_text") {
+        console.log("insert_text", newOp);
+
+        if (newOp.text === "*") {
+          const parentBlock = editor.children[newOp.path[0]];
+          if (!parentBlock.id || !("children" in parentBlock)) return;
+
+          const test = parentBlock.children
+            .map((child) => child.text)
+            .join("")
+            .match(/\*/g)?.length;
+
+          const fragment = {
+            parentId: parentBlock.id,
+            text: "*",
+            type: null,
+            id: null,
+            special: "italic",
+            prevChildId: null,
+          };
+
+          if (test && test % 2 !== 0) {
+            fragment.text = "";
+            fragment.special = "";
+          } else {
+            newOp.text = "";
+          }
+
+          Transforms.insertFragment(editor, [fragment]);
+        }
+      }
       if (newOp.type === "move_node") {
         console.log("move_node", newOp);
       } else if (newOp.type === "remove_node") {
@@ -94,7 +125,7 @@ const Doc = (docProps: DocWithContent) => {
       } else if (newOp.type === "insert_node") {
         newOp = {
           ...newOp,
-          node: nullify(newOp.node),
+          node: nullifiedNode(newOp.node),
         };
 
         console.log("insert_node", newOp);
@@ -109,23 +140,6 @@ const Doc = (docProps: DocWithContent) => {
 
   const saveDoc = () => {
     //infer the block order from the slate AST and save it to the database
-  };
-
-  const renderLeaf = (props: RenderLeafProps) => {
-    return (
-      <span
-        {...props.attributes}
-        className={`${
-          props.leaf.special === "italic"
-            ? "italic"
-            : props.leaf.special === "bold"
-            ? "font-bold"
-            : ""
-        }`}
-      >
-        {props.children}
-      </span>
-    );
   };
 
   return (
@@ -143,24 +157,22 @@ const Doc = (docProps: DocWithContent) => {
         {initialValue ? (
           <Slate editor={editor} value={initialValue.current}>
             <Editable
-              renderElement={(renderElementProps) => {
-                return <Block {...renderElementProps} />;
+              renderElement={(props) => {
+                return <Block {...props} />;
               }}
-              renderLeaf={renderLeaf}
-              onKeyDown={(event) => {
-                if (event.key === "/" && event.ctrlKey) {
-                  event.preventDefault();
-                  const [match] = Editor.nodes(editor, {
-                    match: (node) =>
-                      Editor.isBlock(editor, node) && node.type === "property",
-                  });
-                  Transforms.setNodes(
-                    editor,
-                    { type: match ? "paragraph" : "property" },
-                    { match: (node) => Editor.isBlock(editor, node) }
-                  );
-                }
+              renderLeaf={(props) => {
+                return (
+                  <span
+                    {...props.attributes}
+                    className={`${
+                      props.leaf.special === "italic" ? "italic" : ""
+                    }`}
+                  >
+                    {props.children}
+                  </span>
+                );
               }}
+              onKeyDown={(event) => {}}
             />
           </Slate>
         ) : (
