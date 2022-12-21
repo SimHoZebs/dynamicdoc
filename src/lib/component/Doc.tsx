@@ -15,6 +15,7 @@ import {
 } from "../util/types";
 import Block from "./Block";
 import { trpc } from "../util/trpc";
+import Leaf from "./Leaf";
 
 const nullifiedNode = (node: Node) => {
   let targetNode = {
@@ -74,10 +75,9 @@ const Doc = (docProps: DocWithContent) => {
     editor.apply = (op: BaseOperation) => {
       let newOp: BaseOperation = { ...op };
 
+      console.log(newOp.type, newOp);
       switch (newOp.type) {
-        case "insert_text":
-          console.log("insert_text", newOp);
-
+        case "insert_text": {
           const parentBlock = editor.children[newOp.path[0]];
           if (!parentBlock.id || !("children" in parentBlock)) return;
 
@@ -93,7 +93,7 @@ const Doc = (docProps: DocWithContent) => {
           const currLeafSpecial = Editor.leaf(editor, newOp.path)[0].special;
 
           switch (newOp.text) {
-            case "*":
+            case "*": {
               if (currLeafSpecial === "italic") {
                 fragment.text = "";
                 fragment.special = "";
@@ -105,37 +105,40 @@ const Doc = (docProps: DocWithContent) => {
                 Transforms.insertFragment(editor, [fragment]);
               }
               break;
+            }
 
-            case "{":
+            case "{": {
               if (!currLeafSpecial) {
                 newOp.text = "";
                 fragment.special = "property";
                 Transforms.insertFragment(editor, [fragment]);
               }
               break;
+            }
 
-            case "}":
+            case "}": {
               if (currLeafSpecial === "property") {
                 newOp.text = "";
                 fragment.special = "";
                 Transforms.insertFragment(editor, [fragment]);
               }
               break;
+            }
           }
           break;
+        }
 
         case "remove_node":
-          console.log("remove_node", newOp);
           //delete block
+          //FUTURE: Should check if the node is having an ID generated before deleting or interrupt the node creation.
           if (typeof newOp.node.id !== "string") {
             console.error("node id is not a string:", newOp.node.id);
-            return;
+          } else {
+            deleteBlock.mutateAsync(newOp.node.id);
           }
-          deleteBlock.mutateAsync(newOp.node.id);
           break;
 
         case "split_node":
-          console.log("split_node", newOp);
           newOp = {
             ...newOp,
             properties: {
@@ -155,7 +158,6 @@ const Doc = (docProps: DocWithContent) => {
           break;
 
         case "insert_node":
-          console.log("insert_node", newOp);
           newOp = {
             ...newOp,
             node: nullifiedNode(newOp.node),
@@ -192,18 +194,8 @@ const Doc = (docProps: DocWithContent) => {
               return <Block {...props} />;
             }}
             renderLeaf={(props) => {
-              return (
-                <span
-                  {...props.attributes}
-                  className={`${
-                    props.leaf.special === "italic" ? "italic" : ""
-                  }`}
-                >
-                  {props.children}
-                </span>
-              );
+              return <Leaf {...props} />;
             }}
-            onKeyDown={(event) => {}}
           />
         </Slate>
       </div>
