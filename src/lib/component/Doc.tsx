@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { createEditor, Transforms, Node, BaseOperation } from "slate";
+import { createEditor, Transforms, Node, BaseOperation, Editor } from "slate";
 import { Slate, Editable, withReact } from "slate-react";
 import {
   ClientSideChildBlock,
@@ -68,32 +68,47 @@ const Doc = (docProps: DocWithContent) => {
       if (newOp.type === "insert_text") {
         console.log("insert_text", newOp);
 
-        if (newOp.text === "*") {
-          const parentBlock = editor.children[newOp.path[0]];
-          if (!parentBlock.id || !("children" in parentBlock)) return;
+        const parentBlock = editor.children[newOp.path[0]];
+        if (!parentBlock.id || !("children" in parentBlock)) return;
 
-          const test = parentBlock.children
-            .map((child) => child.text)
-            .join("")
-            .match(/\*/g)?.length;
+        const fragment = {
+          parentId: parentBlock.id,
+          text: "",
+          type: null,
+          id: null,
+          special: "",
+          prevChildId: null,
+        };
 
-          const fragment = {
-            parentId: parentBlock.id,
-            text: "*",
-            type: null,
-            id: null,
-            special: "italic",
-            prevChildId: null,
-          };
+        const currLeafSpecial = Editor.leaf(editor, newOp.path)[0].special;
 
-          if (test && test % 2 !== 0) {
-            fragment.text = "";
-            fragment.special = "";
-          } else {
-            newOp.text = "";
-          }
-
-          Transforms.insertFragment(editor, [fragment]);
+        switch (newOp.text) {
+          case "*":
+            if (currLeafSpecial === "italic") {
+              fragment.text = "";
+              fragment.special = "";
+              Transforms.insertFragment(editor, [fragment]);
+            } else if (!currLeafSpecial) {
+              newOp.text = "";
+              fragment.text = "*";
+              fragment.special = "italic";
+              Transforms.insertFragment(editor, [fragment]);
+            }
+            break;
+          case "{":
+            if (!currLeafSpecial) {
+              newOp.text = "";
+              fragment.special = "property";
+              Transforms.insertFragment(editor, [fragment]);
+            }
+            break;
+          case "}":
+            if (currLeafSpecial === "property") {
+              newOp.text = "";
+              fragment.special = "";
+              Transforms.insertFragment(editor, [fragment]);
+            }
+            break;
         }
       }
       if (newOp.type === "move_node") {
@@ -154,30 +169,26 @@ const Doc = (docProps: DocWithContent) => {
       </div>
 
       <div className="flex h-full w-full flex-col">
-        {initialValue ? (
-          <Slate editor={editor} value={initialValue.current}>
-            <Editable
-              renderElement={(props) => {
-                return <Block {...props} />;
-              }}
-              renderLeaf={(props) => {
-                return (
-                  <span
-                    {...props.attributes}
-                    className={`${
-                      props.leaf.special === "italic" ? "italic" : ""
-                    }`}
-                  >
-                    {props.children}
-                  </span>
-                );
-              }}
-              onKeyDown={(event) => {}}
-            />
-          </Slate>
-        ) : (
-          <div>lul</div>
-        )}
+        <Slate editor={editor} value={initialValue.current}>
+          <Editable
+            renderElement={(props) => {
+              return <Block {...props} />;
+            }}
+            renderLeaf={(props) => {
+              return (
+                <span
+                  {...props.attributes}
+                  className={`${
+                    props.leaf.special === "italic" ? "italic" : ""
+                  }`}
+                >
+                  {props.children}
+                </span>
+              );
+            }}
+            onKeyDown={(event) => {}}
+          />
+        </Slate>
       </div>
     </div>
   );
