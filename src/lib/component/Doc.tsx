@@ -1,5 +1,12 @@
 import React, { useEffect, useRef, useState } from "react";
-import { createEditor, Transforms, Node, BaseOperation, Editor } from "slate";
+import {
+  createEditor,
+  Transforms,
+  Node,
+  BaseOperation,
+  Editor,
+  Path,
+} from "slate";
 import { Slate, Editable, withReact } from "slate-react";
 import {
   ClientSideChildBlock,
@@ -41,7 +48,7 @@ const Doc = (docProps: DocWithContent) => {
   useEffect(() => {
     const { apply } = editor;
 
-    const syncWithDB = async (type: string) => {
+    const syncWithDB = async (type: string, path: Path) => {
       const newBlock = await createBlock.mutateAsync({
         docId: docProps.id,
         type,
@@ -55,95 +62,105 @@ const Doc = (docProps: DocWithContent) => {
         return;
       }
 
-      //sets a property on the node at selection
-      Transforms.setNodes(editor, {
-        id: newBlock.id,
-      });
+      Transforms.setNodes(
+        editor,
+        {
+          id: newBlock.id,
+        },
+        { at: path }
+      );
     };
 
     editor.apply = (op: BaseOperation) => {
       let newOp: BaseOperation = { ...op };
-      //Would use a switch-case, but typescript doesn't seem to be able to narrow the type when I do that.
 
-      if (newOp.type === "insert_text") {
-        console.log("insert_text", newOp);
+      switch (newOp.type) {
+        case "insert_text":
+          console.log("insert_text", newOp);
 
-        const parentBlock = editor.children[newOp.path[0]];
-        if (!parentBlock.id || !("children" in parentBlock)) return;
+          const parentBlock = editor.children[newOp.path[0]];
+          if (!parentBlock.id || !("children" in parentBlock)) return;
 
-        const fragment = {
-          parentId: parentBlock.id,
-          text: "",
-          type: null,
-          id: null,
-          special: "",
-          prevChildId: null,
-        };
-
-        const currLeafSpecial = Editor.leaf(editor, newOp.path)[0].special;
-
-        switch (newOp.text) {
-          case "*":
-            if (currLeafSpecial === "italic") {
-              fragment.text = "";
-              fragment.special = "";
-              Transforms.insertFragment(editor, [fragment]);
-            } else if (!currLeafSpecial) {
-              newOp.text = "";
-              fragment.text = "*";
-              fragment.special = "italic";
-              Transforms.insertFragment(editor, [fragment]);
-            }
-            break;
-          case "{":
-            if (!currLeafSpecial) {
-              newOp.text = "";
-              fragment.special = "property";
-              Transforms.insertFragment(editor, [fragment]);
-            }
-            break;
-          case "}":
-            if (currLeafSpecial === "property") {
-              newOp.text = "";
-              fragment.special = "";
-              Transforms.insertFragment(editor, [fragment]);
-            }
-            break;
-        }
-      }
-      if (newOp.type === "move_node") {
-        console.log("move_node", newOp);
-      } else if (newOp.type === "remove_node") {
-        //delete block
-        if (typeof newOp.node.id !== "string") {
-          console.error("node id is not a string:", newOp.node.id);
-          return;
-        }
-        deleteBlock.mutateAsync(newOp.node.id);
-      } else if (newOp.type === "split_node") {
-        newOp = {
-          ...newOp,
-          properties: {
-            ...newOp.properties,
+          const fragment = {
+            parentId: parentBlock.id,
+            text: "",
+            type: null,
             id: null,
-            parentId: null,
-          },
-        };
+            special: "",
+            prevChildId: null,
+          };
 
-        if (
-          newOp.path.length === 1 &&
-          "type" in newOp.properties &&
-          typeof newOp.properties.type === "string"
-        ) {
-          syncWithDB(newOp.properties.type);
-        }
-      } else if (newOp.type === "insert_node") {
-        newOp = {
-          ...newOp,
-          node: nullifiedNode(newOp.node),
-        };
+          const currLeafSpecial = Editor.leaf(editor, newOp.path)[0].special;
 
-        console.log("insert_node", newOp);
+          switch (newOp.text) {
+            case "*":
+              if (currLeafSpecial === "italic") {
+                fragment.text = "";
+                fragment.special = "";
+                Transforms.insertFragment(editor, [fragment]);
+              } else if (!currLeafSpecial) {
+                newOp.text = "";
+                fragment.text = "*";
+                fragment.special = "italic";
+                Transforms.insertFragment(editor, [fragment]);
+              }
+              break;
+
+            case "{":
+              if (!currLeafSpecial) {
+                newOp.text = "";
+                fragment.special = "property";
+                Transforms.insertFragment(editor, [fragment]);
+              }
+              break;
+
+            case "}":
+              if (currLeafSpecial === "property") {
+                newOp.text = "";
+                fragment.special = "";
+                Transforms.insertFragment(editor, [fragment]);
+              }
+              break;
+          }
+          break;
+
+        case "remove_node":
+          console.log("remove_node", newOp);
+          //delete block
+          if (typeof newOp.node.id !== "string") {
+            console.error("node id is not a string:", newOp.node.id);
+            return;
+          }
+          deleteBlock.mutateAsync(newOp.node.id);
+          break;
+
+        case "split_node":
+          console.log("split_node", newOp);
+          newOp = {
+            ...newOp,
+            properties: {
+              ...newOp.properties,
+              id: null,
+              parentId: null,
+            },
+          };
+
+          if (
+            newOp.path.length === 1 &&
+            "type" in newOp.properties &&
+            typeof newOp.properties.type === "string"
+          ) {
+            syncWithDB(newOp.properties.type, newOp.path);
+          }
+          break;
+
+        case "insert_node":
+          console.log("insert_node", newOp);
+          newOp = {
+            ...newOp,
+            node: nullifiedNode(newOp.node),
+          };
+          break;
       }
       apply(newOp);
     };
