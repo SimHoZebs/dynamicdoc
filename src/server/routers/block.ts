@@ -58,14 +58,14 @@ const blockRouter = router({
     });
   }),
 
-  del: procedure.input(z.string()).mutation(({ input }) => {
-    db.childBlock.deleteMany({
+  del: procedure.input(z.string()).mutation(async ({ input }) => {
+    await db.childBlock.deleteMany({
       where: {
         parentId: input,
       },
     });
 
-    db.parentBlock.delete({
+    await db.parentBlock.delete({
       where: {
         id: input,
       },
