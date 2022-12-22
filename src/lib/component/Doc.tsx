@@ -63,13 +63,7 @@ const Doc = (docProps: DocWithContent) => {
         return;
       }
 
-      Transforms.setNodes(
-        editor,
-        {
-          id: newBlock.id,
-        },
-        { at: path }
-      );
+      Transforms.setNodes(editor, { id: newBlock.id }, { at: path });
     };
 
     editor.apply = (op: BaseOperation) => {
@@ -95,8 +89,6 @@ const Doc = (docProps: DocWithContent) => {
           switch (newOp.text) {
             case "*": {
               if (currLeafSpecial === "italic") {
-                fragment.text = "";
-                fragment.special = "";
                 Transforms.insertFragment(editor, [fragment]);
               } else if (!currLeafSpecial) {
                 newOp.text = "";
@@ -110,6 +102,7 @@ const Doc = (docProps: DocWithContent) => {
             case "{": {
               if (!currLeafSpecial) {
                 newOp.text = "";
+                fragment.text = "{";
                 fragment.special = "property";
                 Transforms.insertFragment(editor, [fragment]);
               }
@@ -118,8 +111,6 @@ const Doc = (docProps: DocWithContent) => {
 
             case "}": {
               if (currLeafSpecial === "property") {
-                newOp.text = "";
-                fragment.special = "";
                 Transforms.insertFragment(editor, [fragment]);
               }
               break;
@@ -164,6 +155,7 @@ const Doc = (docProps: DocWithContent) => {
           };
           break;
       }
+
       apply(newOp);
     };
 
