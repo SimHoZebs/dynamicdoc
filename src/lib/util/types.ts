@@ -9,6 +9,7 @@ export type ParentBlockWithChildren = Omit<ParentBlock, "id"> & {
 
 export type ClientSideChildBlock = Omit<ChildBlock, "id"> & {
   id: string | null;
+  children?: ClientSideChildBlock[];
 };
 
 export type DocWithContent = Doc & {
