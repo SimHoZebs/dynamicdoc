@@ -102,18 +102,8 @@ const CustomEditor = (docProps: DocWithContent) => {
             case "{": {
               if (!currLeafSpecial) {
                 newOp.text = "";
-                fragment.text = null;
+                fragment.text = "{";
                 fragment.special = "property";
-                fragment.children = [
-                  {
-                    text: "",
-                    parentId: null,
-                    prevChildId: null,
-                    id: null,
-                    type: null,
-                    special: null,
-                  },
-                ];
                 Transforms.insertFragment(editor, [fragment]);
               }
               break;
