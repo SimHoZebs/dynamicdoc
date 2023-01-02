@@ -1,3 +1,5 @@
 export * from "./doc"
 export * from "./parentblock"
 export * from "./childblock"
+export * from "./lexicalparentblock"
+export * from "./lexicalchildblock"

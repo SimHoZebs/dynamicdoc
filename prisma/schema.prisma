@@ -6,25 +6,23 @@ generator client {
 }
 
 generator zod {
-  provider                 = "zod-prisma"
-  output                   = "./zod" // (default) the directory where generated zod schemas will be saved
+  provider = "zod-prisma"
+  output   = "./zod" // (default) the directory where generated zod schemas will be saved
 
-  relationModel            = true // (default) Create and export both plain and related models.
+  relationModel = true // (default) Create and export both plain and related models.
   // relationModel         = "default" // Do not export model without relations.
   // relationModel         = false // Do not generate related model
 
-  modelCase                = "PascalCase" // (default) Output models using pascal case (ex. UserModel, PostModel)
+  modelCase = "PascalCase" // (default) Output models using pascal case (ex. UserModel, PostModel)
   // modelCase             = "camelCase" // Output models using camel case (ex. userModel, postModel)
 
-  modelSuffix              = "Model" // (default) Suffix to apply to your prisma models when naming Zod schemas
+  modelSuffix = "Model" // (default) Suffix to apply to your prisma models when naming Zod schemas
 
   // useDecimalJs          = false // (default) represent the prisma Decimal type using as a JS number
-  useDecimalJs             = true // represent the prisma Decimal type using Decimal.js (as Prisma does)
-
-  imports                  = null // (default) will import the referenced file in generated schemas to be used via imports.someExportedVariable
+  useDecimalJs = true // represent the prisma Decimal type using Decimal.js (as Prisma does)
 
   // https://www.prisma.io/docs/concepts/components/prisma-client/working-with-fields/working-with-json-fields#filtering-by-null-values
-  prismaJsonNullability    = true // (default) uses prisma's scheme for JSON field nullability
+  prismaJsonNullability = true // (default) uses prisma's scheme for JSON field nullability
   // prismaJsonNullability = false // allows null assignment to optional JSON fields
 }
 
@@ -34,7 +32,7 @@ datasource db {
 }
 
 model Doc {
-  id         String     @id @default(uuid())
+  id         String        @id @default(uuid())
   title      String
   blockArray ParentBlock[]
   blockOrder String[]
@@ -43,21 +41,49 @@ model Doc {
 //The blocks are distinguished because only the first element(ParentBlock) should be assigned to a docId and must have children, whereas ChildBlock is assigned to a ParentBlockId and may not have children. ParentBlock also can't have text, whereas ChildBlock can.
 //Sure, I can make a single model with nullable fields, but that forces null checks.
 model ParentBlock {
-  doc    Doc   @relation(fields: [docId], references: [id])
-  docId  String 
-  id      String    @id @default(uuid())
-  type    String
-  children  ChildBlock[]
+  doc      Doc          @relation(fields: [docId], references: [id])
+  docId    String
+  id       String       @id @default(uuid())
+  type     String
+  children ChildBlock[]
 }
 
-model ChildBlock{
-  id     String    @id @default(uuid())
-  parent ParentBlock? @relation(fields: [parentId], references: [id])
-  parentId String?
-  text   String?
-  type   String?
-  special String?
-  prevChild ChildBlock? @relation("Child", fields: [prevChildId], references: [id])
+model ChildBlock {
+  id          String       @id @default(uuid())
+  parent      ParentBlock? @relation(fields: [parentId], references: [id])
+  parentId    String?
+  text        String?
+  type        String?
+  special     String?
+  prevChild   ChildBlock?  @relation("Child", fields: [prevChildId], references: [id])
   prevChildId String?
-  children ChildBlock[] @relation("Child")
+  children    ChildBlock[] @relation("Child")
+}
+
+model LexicalParentBlock {
+  id        String              @id @default(uuid())
+  direction Direction
+  format    String
+  indent    Int
+  type      String
+  version   Int
+  children  LexicalChildBlock[]
+}
+
+model LexicalChildBlock {
+  id       String             @id @default(uuid())
+  parentId String
+  parent   LexicalParentBlock @relation(fields: [parentId], references: [id])
+  detail   Int
+  format   Int
+  mode     String
+  style    String
+  text     String
+  type     String
+  version  Int
+}
+
+enum Direction {
+  ltr
+  rtl
 }
