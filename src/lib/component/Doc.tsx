@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { DocWithContent } from "../util/types";
-import CustomEditor from "./CustomEditor";
 import Editor from "./Editor";
 
 const Doc = (docProps: DocWithContent) => {
@@ -17,7 +16,6 @@ const Doc = (docProps: DocWithContent) => {
       </div>
 
       <div className="flex h-full w-full flex-col">
-        {/* <CustomEditor {...docProps} /> */}
         <Editor {...docProps} />
       </div>
     </div>

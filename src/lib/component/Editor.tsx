@@ -1,32 +1,40 @@
+import React, { useEffect, useRef, useState } from "react";
 import {
   $createParagraphNode,
   $createTextNode,
+  $getNodeByKey,
   $getRoot,
   $getSelection,
+  $insertNodes,
   EditorState,
   ParagraphNode,
+  TextNode,
 } from "lexical";
 import {
   LexicalComposer,
   InitialConfigType,
 } from "@lexical/react/LexicalComposer";
 import { ContentEditable } from "@lexical/react/LexicalContentEditable";
-import { HistoryPlugin } from "@lexical/react/LexicalHistoryPlugin";
-import { OnChangePlugin } from "@lexical/react/LexicalOnChangePlugin";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { TRANSFORMERS } from "@lexical/markdown";
+
 import { MarkdownShortcutPlugin } from "@lexical/react/LexicalMarkdownShortcutPlugin";
 import LexicalErrorBoundary from "@lexical/react/LexicalErrorBoundary";
-import { DocWithContent } from "../util/types";
 import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
-import { AutoFocusPlugin } from "@lexical/react/LexicalAutoFocusPlugin";
+import { OnChangePlugin } from "@lexical/react/LexicalOnChangePlugin";
+import { HistoryPlugin } from "@lexical/react/LexicalHistoryPlugin";
 import { HeadingNode, QuoteNode } from "@lexical/rich-text";
+import { LinkPlugin } from "@lexical/react/LexicalLinkPlugin";
+import { ListPlugin } from "@lexical/react/LexicalListPlugin";
+import { NodeEventPlugin } from "@lexical/react/LexicalNodeEventPlugin";
+
 import { TableCellNode, TableNode, TableRowNode } from "@lexical/table";
 import { ListItemNode, ListNode } from "@lexical/list";
 import { CodeHighlightNode, CodeNode } from "@lexical/code";
 import { AutoLinkNode, LinkNode } from "@lexical/link";
-import { LinkPlugin } from "@lexical/react/LexicalLinkPlugin";
-import { ListPlugin } from "@lexical/react/LexicalListPlugin";
+import { DocWithContent } from "../util/types";
+import { $createPropertiesNode, PropertiesNode } from "./CustomTextNode";
+import Autocomplete from "./Autocomplete";
 
 const theme = {
   // Theme styling goes here
@@ -48,25 +56,54 @@ function onChange(editorState: EditorState) {
 // highly composable. Furthermore, you can lazy load plugins if
 // desired, so you don't pay the cost for plugins until you
 // actually use them.
-function MyTestPlugin() {
+function MyTestPlugin(props: {
+  setNodePos: React.Dispatch<React.SetStateAction<number[]>>;
+}) {
   const [editor] = useLexicalComposerContext();
 
-  return (
-    <button
-      className="bg-blue-400 font-semibold text-dark-500"
-      onClick={() => {
+  useEffect(() => {
+    const textNodeTransform = (textNode: TextNode) => {
+      const textContent = textNode.getTextContent();
+      console.log("text content", textContent);
+
+      if (textContent.includes("{")) {
         editor.update(() => {
-          const root = $getRoot();
-          const paragraphNode = $createParagraphNode();
-          const textNode = $createTextNode("test");
-          paragraphNode.append(textNode);
-          root.append(paragraphNode);
+          textNode.setTextContent(textContent.replace("{", ""));
+          const propertiesNode = $createPropertiesNode("{");
+          $insertNodes([propertiesNode]);
         });
-      }}
-    >
-      test
-    </button>
-  );
+      }
+    };
+
+    //Gives position for Autocomplete component to attach to.
+    //TODO: This only gives position when something after { is typed. Make it so that it gives position the moment it is created.
+    const PropertiesNodeTransform = (coloredNode: PropertiesNode) => {
+      //TODO: if } is typed, a text node has to be inserted next
+      const el = editor.getElementByKey(coloredNode.__key);
+      if (!el) return;
+      const { x, y } = el.getBoundingClientRect();
+
+      console.log("getBoudingClientRec", el?.getBoundingClientRect());
+
+      props.setNodePos([x, y]);
+    };
+
+    const removeTextNodeTransform = editor.registerNodeTransform(
+      TextNode,
+      textNodeTransform
+    );
+    const removePropertiesNodeTransform = editor.registerNodeTransform(
+      PropertiesNode,
+      PropertiesNodeTransform
+    );
+
+    return () => {
+      removeTextNodeTransform();
+      removePropertiesNodeTransform();
+    };
+  }, [editor, props]);
+
+  return null;
 }
 
 // Catch any errors that occur during Lexical updates and log them
@@ -77,6 +114,8 @@ function onError(error: Error) {
 }
 
 function Editor(props: DocWithContent) {
+  const [nodePos, setNodePos] = useState<number[]>([]);
+
   const initialConfig: InitialConfigType = {
     namespace: "MyEditor",
     theme,
@@ -94,6 +133,7 @@ function Editor(props: DocWithContent) {
       AutoLinkNode,
       LinkNode,
       ParagraphNode,
+      PropertiesNode,
     ],
     editorState: JSON.stringify({
       root: {
@@ -134,13 +174,12 @@ function Editor(props: DocWithContent) {
         placeholder={<div>Enter some text...</div>}
         ErrorBoundary={LexicalErrorBoundary}
       />
-      <OnChangePlugin
-        onChange={(editorState) => console.log(editorState.toJSON())}
-      />
       <ListPlugin />
       <LinkPlugin />
       <HistoryPlugin />
-      <MyTestPlugin />
+      <MyTestPlugin setNodePos={setNodePos} />
+      <Autocomplete nodePos={nodePos} />
+      {/* <OnChangePlugin onChange={(editorState) => console.log(editorState)} /> */}
       <MarkdownShortcutPlugin transformers={TRANSFORMERS} />
     </LexicalComposer>
   );
@@ -150,7 +189,7 @@ export default Editor;
 
 const SavePlugin = () => {
   const [editor] = useLexicalComposerContext();
-  editor.toJSON();
+  // editor.toJSON();
   return (
     <button className="bg-blue-400 font-semibold text-dark-400">Save</button>
   );
