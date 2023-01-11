@@ -28,7 +28,7 @@ import { LinkPlugin } from "@lexical/react/LexicalLinkPlugin";
 import { ListPlugin } from "@lexical/react/LexicalListPlugin";
 import { NodeEventPlugin } from "@lexical/react/LexicalNodeEventPlugin";
 import TreeViewPlugin from "../plugins/TreeViewPlugin";
-import Autocomplete from "../plugins/AutocompletePlugin";
+import ComponentPickerMenuPlugin from "../plugins/ComponentPickerMenuPlugin";
 
 import { TableCellNode, TableNode, TableRowNode } from "@lexical/table";
 import { ListItemNode, ListNode } from "@lexical/list";
@@ -122,7 +122,7 @@ function Editor(props: DocWithContent) {
       <ListPlugin />
       <LinkPlugin />
       <HistoryPlugin />
-      <Autocomplete />
+      <ComponentPickerMenuPlugin />
       <TreeViewPlugin />
       {/* <OnChangePlugin onChange={(editorState) => console.log(editorState)} /> */}
       <MarkdownShortcutPlugin transformers={TRANSFORMERS} />
