@@ -27,6 +27,8 @@ import { HeadingNode, QuoteNode } from "@lexical/rich-text";
 import { LinkPlugin } from "@lexical/react/LexicalLinkPlugin";
 import { ListPlugin } from "@lexical/react/LexicalListPlugin";
 import { NodeEventPlugin } from "@lexical/react/LexicalNodeEventPlugin";
+import TreeViewPlugin from "./plugins/TreeViewPlugin";
+import Autocomplete from "./plugins/AutocompletePlugin";
 
 import { TableCellNode, TableNode, TableRowNode } from "@lexical/table";
 import { ListItemNode, ListNode } from "@lexical/list";
@@ -34,7 +36,6 @@ import { CodeHighlightNode, CodeNode } from "@lexical/code";
 import { AutoLinkNode, LinkNode } from "@lexical/link";
 import { DocWithContent } from "../util/types";
 import { $createPropertiesNode, PropertiesNode } from "./CustomTextNode";
-import Autocomplete from "./Autocomplete";
 
 const theme = {
   // Theme styling goes here
@@ -52,60 +53,6 @@ function onChange(editorState: EditorState) {
   });
 }
 
-// Lexical React plugins are React components, which makes them
-// highly composable. Furthermore, you can lazy load plugins if
-// desired, so you don't pay the cost for plugins until you
-// actually use them.
-function MyTestPlugin(props: {
-  setNodePos: React.Dispatch<React.SetStateAction<number[]>>;
-}) {
-  const [editor] = useLexicalComposerContext();
-
-  useEffect(() => {
-    const textNodeTransform = (textNode: TextNode) => {
-      const textContent = textNode.getTextContent();
-      console.log("text content", textContent);
-
-      if (textContent.includes("{")) {
-        editor.update(() => {
-          textNode.setTextContent(textContent.replace("{", ""));
-          const propertiesNode = $createPropertiesNode("{");
-          $insertNodes([propertiesNode]);
-        });
-      }
-    };
-
-    //Gives position for Autocomplete component to attach to.
-    //TODO: This only gives position when something after { is typed. Make it so that it gives position the moment it is created.
-    const PropertiesNodeTransform = (coloredNode: PropertiesNode) => {
-      //TODO: if } is typed, a text node has to be inserted next
-      const el = editor.getElementByKey(coloredNode.__key);
-      if (!el) return;
-      const { x, y } = el.getBoundingClientRect();
-
-      console.log("getBoudingClientRec", el?.getBoundingClientRect());
-
-      props.setNodePos([x, y]);
-    };
-
-    const removeTextNodeTransform = editor.registerNodeTransform(
-      TextNode,
-      textNodeTransform
-    );
-    const removePropertiesNodeTransform = editor.registerNodeTransform(
-      PropertiesNode,
-      PropertiesNodeTransform
-    );
-
-    return () => {
-      removeTextNodeTransform();
-      removePropertiesNodeTransform();
-    };
-  }, [editor, props]);
-
-  return null;
-}
-
 // Catch any errors that occur during Lexical updates and log them
 // or throw them as needed. If you don't throw them, Lexical will
 // try to recover gracefully without losing user data.
@@ -114,8 +61,6 @@ function onError(error: Error) {
 }
 
 function Editor(props: DocWithContent) {
-  const [nodePos, setNodePos] = useState<number[]>([]);
-
   const initialConfig: InitialConfigType = {
     namespace: "MyEditor",
     theme,
@@ -177,8 +122,8 @@ function Editor(props: DocWithContent) {
       <ListPlugin />
       <LinkPlugin />
       <HistoryPlugin />
-      <MyTestPlugin setNodePos={setNodePos} />
-      <Autocomplete nodePos={nodePos} />
+      <Autocomplete />
+      <TreeViewPlugin />
       {/* <OnChangePlugin onChange={(editorState) => console.log(editorState)} /> */}
       <MarkdownShortcutPlugin transformers={TRANSFORMERS} />
     </LexicalComposer>
