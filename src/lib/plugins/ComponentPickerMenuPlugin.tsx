@@ -35,6 +35,7 @@ import * as ReactDOM from "react-dom";
 
 import useModal from "../hooks/useModal";
 import { $createTimeNode } from "../component/TimeNode";
+import { $createSelectNode } from "../component/StatusNode";
 
 class ComponentPickerOption extends TypeaheadOption {
   // What shows up in the editor
@@ -169,6 +170,20 @@ export default function ComponentPickerMenuPlugin(): JSX.Element {
             if ($isRangeSelection(selection)) {
               const timeNode = $createTimeNode();
               selection.insertNodes([timeNode]);
+            }
+          });
+        },
+      }),
+
+      new ComponentPickerOption("Select", {
+        keywords: ["select", "status"],
+        onSelect: () => {
+          editor.update(() => {
+            const selection = $getSelection();
+
+            if ($isRangeSelection(selection)) {
+              const selectNode = $createSelectNode();
+              selection.insertNodes([selectNode]);
             }
           });
         },

@@ -36,6 +36,7 @@ import { CodeHighlightNode, CodeNode } from "@lexical/code";
 import { AutoLinkNode, LinkNode } from "@lexical/link";
 import { DocWithContent } from "../util/types";
 import { TimeNode } from "./TimeNode";
+import { SelectNode } from "./StatusNode";
 
 const theme = {
   // Theme styling goes here
@@ -66,6 +67,7 @@ function Editor(props: DocWithContent) {
     theme,
     onError,
     nodes: [
+      SelectNode,
       TimeNode,
       HeadingNode,
       ListNode,

@@ -1,5 +1,7 @@
 import React from "react";
 
+//This is separate from TimeNode.tsx for DX reasons; It shouldn't need to be used anywhere else.
+//Putting this component in TimeNode.tsx recompiles TimeNode as well, making it different from the TimeNode Editor.tsx is referencing.
 const Time = () => {
   const [time, setTime] = React.useState(new Date().toString().slice(0, 24));
 
