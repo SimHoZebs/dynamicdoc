@@ -79,15 +79,14 @@ function ComponentPickerMenuItem({
   onMouseEnter: () => void;
   option: ComponentPickerOption;
 }) {
-  let className = "item";
-  if (isSelected) {
-    className += " selected";
-  }
   return (
     <li
       key={option.key}
       tabIndex={-1}
-      className={className + "min-w-[180px]"}
+      className={
+        "align-center flex min-w-[180px] max-w-[250px] p-2 text-sm text-slate-100 outline-none active:h-5 active:w-5" +
+        (isSelected ? " bg-dark-300" : " bg-dark-800")
+      }
       ref={option.setRefElement}
       role="option"
       aria-selected={isSelected}
@@ -96,7 +95,9 @@ function ComponentPickerMenuItem({
       onClick={onClick}
     >
       {option.icon}
-      <span className="text">{option.title}</span>
+      <span className="flex min-w-[150px] flex-grow leading-5">
+        {option.title}
+      </span>
     </li>
   );
 }
@@ -159,6 +160,20 @@ export default function ComponentPickerMenuPlugin(): JSX.Element {
 
   const options = useMemo(() => {
     const baseOptions = [
+      new ComponentPickerOption("Current Time", {
+        keywords: ["time", "current time"],
+        onSelect: () => {
+          editor.update(() => {
+            const selection = $getSelection();
+
+            if ($isRangeSelection(selection)) {
+              const timeNode = $createTimeNode();
+              selection.insertNodes([timeNode]);
+            }
+          });
+        },
+      }),
+
       new ComponentPickerOption("Paragraph", {
         icon: <i className="icon paragraph" />,
         keywords: ["normal", "paragraph", "p", "text"],
@@ -221,20 +236,6 @@ export default function ComponentPickerMenuPlugin(): JSX.Element {
               $setBlocksType_experimental(selection, () => $createQuoteNode());
             }
           }),
-      }),
-
-      new ComponentPickerOption("Current Time", {
-        keywords: ["time", "current time"],
-        onSelect: () => {
-          editor.update(() => {
-            const selection = $getSelection();
-
-            if ($isRangeSelection(selection)) {
-              const timeNode = $createTimeNode();
-              selection.insertNodes([timeNode]);
-            }
-          });
-        },
       }),
 
       new ComponentPickerOption("Code", {
@@ -324,8 +325,8 @@ export default function ComponentPickerMenuPlugin(): JSX.Element {
         ) =>
           anchorElementRef.current && options.length
             ? ReactDOM.createPortal(
-                <div className="mt-6 w-[200px] border-r-8 bg-white shadow-sm">
-                  <ul className="max-h-[200px] list-none overflow-y-scroll border-r-8">
+                <div className="mt-6 w-[200px] rounded-lg bg-dark-800 shadow-sm">
+                  <ul className="max-h-[200px] list-none overflow-y-scroll rounded-lg ">
                     {options.map((option, i: number) => (
                       <ComponentPickerMenuItem
                         index={i}
