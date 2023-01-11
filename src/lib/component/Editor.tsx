@@ -27,8 +27,8 @@ import { HeadingNode, QuoteNode } from "@lexical/rich-text";
 import { LinkPlugin } from "@lexical/react/LexicalLinkPlugin";
 import { ListPlugin } from "@lexical/react/LexicalListPlugin";
 import { NodeEventPlugin } from "@lexical/react/LexicalNodeEventPlugin";
-import TreeViewPlugin from "./plugins/TreeViewPlugin";
-import Autocomplete from "./plugins/AutocompletePlugin";
+import TreeViewPlugin from "../plugins/TreeViewPlugin";
+import Autocomplete from "../plugins/AutocompletePlugin";
 
 import { TableCellNode, TableNode, TableRowNode } from "@lexical/table";
 import { ListItemNode, ListNode } from "@lexical/list";
