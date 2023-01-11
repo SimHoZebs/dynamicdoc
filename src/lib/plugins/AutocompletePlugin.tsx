@@ -34,6 +34,8 @@ import * as React from "react";
 import * as ReactDOM from "react-dom";
 
 import useModal from "../hooks/useModal";
+import { $createTimeNode } from "../component/TimeNode";
+
 class ComponentPickerOption extends TypeaheadOption {
   // What shows up in the editor
   title: string;
@@ -187,24 +189,28 @@ export default function ComponentPickerMenuPlugin(): JSX.Element {
               }),
           })
       ),
+
       new ComponentPickerOption("Numbered List", {
         icon: <i className="icon number" />,
         keywords: ["numbered list", "ordered list", "ol"],
         onSelect: () =>
           editor.dispatchCommand(INSERT_ORDERED_LIST_COMMAND, undefined),
       }),
+
       new ComponentPickerOption("Bulleted List", {
         icon: <i className="icon bullet" />,
         keywords: ["bulleted list", "unordered list", "ul"],
         onSelect: () =>
           editor.dispatchCommand(INSERT_UNORDERED_LIST_COMMAND, undefined),
       }),
+
       new ComponentPickerOption("Check List", {
         icon: <i className="icon check" />,
         keywords: ["check list", "todo list"],
         onSelect: () =>
           editor.dispatchCommand(INSERT_CHECK_LIST_COMMAND, undefined),
       }),
+
       new ComponentPickerOption("Quote", {
         icon: <i className="icon quote" />,
         keywords: ["block quote"],
@@ -216,6 +222,21 @@ export default function ComponentPickerMenuPlugin(): JSX.Element {
             }
           }),
       }),
+
+      new ComponentPickerOption("Current Time", {
+        keywords: ["time", "current time"],
+        onSelect: () => {
+          editor.update(() => {
+            const selection = $getSelection();
+
+            if ($isRangeSelection(selection)) {
+              const timeNode = $createTimeNode();
+              selection.insertNodes([timeNode]);
+            }
+          });
+        },
+      }),
+
       new ComponentPickerOption("Code", {
         icon: <i className="icon code" />,
         keywords: ["javascript", "python", "js", "codeblock"],
@@ -227,7 +248,6 @@ export default function ComponentPickerMenuPlugin(): JSX.Element {
               if (selection.isCollapsed()) {
                 $setBlocksType_experimental(selection, () => $createCodeNode());
               } else {
-                // Will this ever happen?
                 const textContent = selection.getTextContent();
                 const codeNode = $createCodeNode();
                 selection.insertNodes([codeNode]);
@@ -289,6 +309,7 @@ export default function ComponentPickerMenuPlugin(): JSX.Element {
     [editor]
   );
 
+  //How is LexicalTypeaheadMenuPlugin rendering the menu?
   return (
     <>
       {modal}

@@ -35,7 +35,7 @@ import { ListItemNode, ListNode } from "@lexical/list";
 import { CodeHighlightNode, CodeNode } from "@lexical/code";
 import { AutoLinkNode, LinkNode } from "@lexical/link";
 import { DocWithContent } from "../util/types";
-import { $createPropertiesNode, PropertiesNode } from "./CustomTextNode";
+import { TimeNode } from "./TimeNode";
 
 const theme = {
   // Theme styling goes here
@@ -66,6 +66,7 @@ function Editor(props: DocWithContent) {
     theme,
     onError,
     nodes: [
+      TimeNode,
       HeadingNode,
       ListNode,
       ListItemNode,
@@ -78,7 +79,6 @@ function Editor(props: DocWithContent) {
       AutoLinkNode,
       LinkNode,
       ParagraphNode,
-      PropertiesNode,
     ],
     editorState: JSON.stringify({
       root: {
