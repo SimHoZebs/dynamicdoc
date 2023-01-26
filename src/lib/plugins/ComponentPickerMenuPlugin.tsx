@@ -35,7 +35,7 @@ import * as ReactDOM from "react-dom";
 
 import useModal from "../hooks/useModal";
 import { $createTimeNode } from "../component/TimeNode";
-import { $createSelectNode } from "../component/StatusNode";
+import { $createSelectNode } from "../component/SelectNode";
 
 class ComponentPickerOption extends TypeaheadOption {
   // What shows up in the editor

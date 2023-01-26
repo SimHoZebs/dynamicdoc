@@ -36,7 +36,8 @@ import { CodeHighlightNode, CodeNode } from "@lexical/code";
 import { AutoLinkNode, LinkNode } from "@lexical/link";
 import { DocWithContent } from "../util/types";
 import { TimeNode } from "./TimeNode";
-import { SelectNode } from "./StatusNode";
+import { SelectNode } from "./SelectNode";
+import SelectPlugin from "../plugins/SelectPlugin";
 
 const theme = {
   // Theme styling goes here
@@ -125,6 +126,7 @@ function Editor(props: DocWithContent) {
       <LinkPlugin />
       <HistoryPlugin />
       <ComponentPickerMenuPlugin />
+      <SelectPlugin />
       <TreeViewPlugin />
       {/* <OnChangePlugin onChange={(editorState) => console.log(editorState)} /> */}
       <MarkdownShortcutPlugin transformers={TRANSFORMERS} />
@@ -136,8 +138,17 @@ export default Editor;
 
 const SavePlugin = () => {
   const [editor] = useLexicalComposerContext();
-  // editor.toJSON();
+  const saveEditor = () => {
+    const editorAST = editor.toJSON();
+    console.log(editorAST);
+  };
+
   return (
-    <button className="bg-blue-400 font-semibold text-dark-400">Save</button>
+    <button
+      className="bg-blue-400 font-semibold text-dark-400"
+      onClick={saveEditor}
+    >
+      Save
+    </button>
   );
 };
