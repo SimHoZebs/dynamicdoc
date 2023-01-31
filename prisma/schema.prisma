@@ -38,42 +38,22 @@ model Doc {
   blockOrder String[]
 }
 
-//The blocks are distinguished because only the first element(ParentBlock) should be assigned to a docId and must have children, whereas ChildBlock is assigned to a ParentBlockId and may not have children. ParentBlock also can't have text, whereas ChildBlock can.
-//Sure, I can make a single model with nullable fields, but that forces null checks.
 model ParentBlock {
-  doc      Doc          @relation(fields: [docId], references: [id])
-  docId    String
-  id       String       @id @default(uuid())
-  type     String
-  children ChildBlock[]
+  id        String       @id @default(uuid())
+  direction Direction
+  format    String
+  indent    Int?
+  type      String
+  version   Int
+  children  ChildBlock[]
+  Doc       Doc?         @relation(fields: [docId], references: [id])
+  docId     String?
 }
 
 model ChildBlock {
-  id          String       @id @default(uuid())
-  parent      ParentBlock? @relation(fields: [parentId], references: [id])
-  parentId    String?
-  text        String?
-  type        String?
-  special     String?
-  prevChild   ChildBlock?  @relation("Child", fields: [prevChildId], references: [id])
-  prevChildId String?
-  children    ChildBlock[] @relation("Child")
-}
-
-model LexicalParentBlock {
-  id        String              @id @default(uuid())
-  direction Direction
-  format    String
-  indent    Int
-  type      String
-  version   Int
-  children  LexicalChildBlock[]
-}
-
-model LexicalChildBlock {
-  id       String             @id @default(uuid())
+  id       String      @id @default(uuid())
   parentId String
-  parent   LexicalParentBlock @relation(fields: [parentId], references: [id])
+  parent   ParentBlock @relation(fields: [parentId], references: [id])
   detail   Int
   format   Int
   mode     String

@@ -1,15 +1,20 @@
 import * as z from "zod"
-import { CompleteDoc, RelatedDocModel, CompleteChildBlock, RelatedChildBlockModel } from "./index"
+import { Direction } from "@prisma/client"
+import { CompleteChildBlock, RelatedChildBlockModel, CompleteDoc, RelatedDocModel } from "./index"
 
 export const ParentBlockModel = z.object({
-  docId: z.string(),
   id: z.string(),
+  direction: z.nativeEnum(Direction),
+  format: z.string(),
+  indent: z.number().int().nullish(),
   type: z.string(),
+  version: z.number().int(),
+  docId: z.string().nullish(),
 })
 
 export interface CompleteParentBlock extends z.infer<typeof ParentBlockModel> {
-  doc: CompleteDoc
   children: CompleteChildBlock[]
+  Doc?: CompleteDoc | null
 }
 
 /**
@@ -18,6 +23,6 @@ export interface CompleteParentBlock extends z.infer<typeof ParentBlockModel> {
  * NOTE: Lazy required in case of potential circular dependencies within schema
  */
 export const RelatedParentBlockModel: z.ZodSchema<CompleteParentBlock> = z.lazy(() => ParentBlockModel.extend({
-  doc: RelatedDocModel,
   children: RelatedChildBlockModel.array(),
+  Doc: RelatedDocModel.nullish(),
 }))

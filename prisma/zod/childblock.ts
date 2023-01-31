@@ -1,19 +1,20 @@
-import * as z from "zod";
-import { CompleteParentBlock, RelatedParentBlockModel } from "./index";
+import * as z from "zod"
+import { CompleteParentBlock, RelatedParentBlockModel } from "./index"
 
 export const ChildBlockModel = z.object({
   id: z.string(),
-  parentId: z.string().nullish(),
-  text: z.string().nullish(),
-  type: z.string().nullish(),
-  special: z.string().nullish(),
-  prevChildId: z.string().nullish(),
-});
+  parentId: z.string(),
+  detail: z.number().int(),
+  format: z.number().int(),
+  mode: z.string(),
+  style: z.string(),
+  text: z.string(),
+  type: z.string(),
+  version: z.number().int(),
+})
 
 export interface CompleteChildBlock extends z.infer<typeof ChildBlockModel> {
-  parent?: CompleteParentBlock | null;
-  prevChild?: CompleteChildBlock | null;
-  children: CompleteChildBlock[];
+  parent: CompleteParentBlock
 }
 
 /**
@@ -21,11 +22,6 @@ export interface CompleteChildBlock extends z.infer<typeof ChildBlockModel> {
  *
  * NOTE: Lazy required in case of potential circular dependencies within schema
  */
-export const RelatedChildBlockModel: z.ZodSchema<CompleteChildBlock> = z.lazy(
-  () =>
-    ChildBlockModel.extend({
-      parent: RelatedParentBlockModel.nullish(),
-      prevChild: RelatedChildBlockModel.nullish(),
-      children: RelatedChildBlockModel.array(),
-    })
-);
+export const RelatedChildBlockModel: z.ZodSchema<CompleteChildBlock> = z.lazy(() => ChildBlockModel.extend({
+  parent: RelatedParentBlockModel,
+}))
