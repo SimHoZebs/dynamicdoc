@@ -35,7 +35,6 @@ import { ListItemNode, ListNode } from "@lexical/list";
 import { CodeHighlightNode, CodeNode } from "@lexical/code";
 import { AutoLinkNode, LinkNode } from "@lexical/link";
 import { DocWithContent } from "../util/types";
-import { TimeNode } from "./TimeNode";
 import { SelectNode } from "./SelectNode";
 import SelectPlugin from "../plugins/SelectPlugin";
 
@@ -62,14 +61,13 @@ function onError(error: Error) {
   console.error(error);
 }
 
-function Editor(props: DocWithContent) {
+function Editor() {
   const initialConfig: InitialConfigType = {
     namespace: "MyEditor",
     theme,
     onError,
     nodes: [
       SelectNode,
-      TimeNode,
       HeadingNode,
       ListNode,
       ListItemNode,
@@ -125,7 +123,7 @@ function Editor(props: DocWithContent) {
       <ListPlugin />
       <LinkPlugin />
       <HistoryPlugin />
-      <ComponentPickerMenuPlugin />
+      {typeof document !== "undefined" ? <ComponentPickerMenuPlugin /> : ""}
       <SelectPlugin />
       <TreeViewPlugin />
       {/* <OnChangePlugin onChange={(editorState) => console.log(editorState)} /> */}
