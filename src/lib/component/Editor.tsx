@@ -37,6 +37,7 @@ import { AutoLinkNode, LinkNode } from "@lexical/link";
 import { DocWithContent } from "../util/types";
 import { SelectNode } from "./SelectNode";
 import SelectPlugin from "../plugins/SelectPlugin";
+import GroupPickerMenuPlugin from "../plugins/GroupPickerMenuPlugin";
 
 const theme = {
   // Theme styling goes here
@@ -123,7 +124,7 @@ function Editor() {
       <ListPlugin />
       <LinkPlugin />
       <HistoryPlugin />
-      {typeof document !== "undefined" ? <ComponentPickerMenuPlugin /> : ""}
+      {typeof document !== "undefined" ? <GroupPickerMenuPlugin /> : ""}
       <SelectPlugin />
       <TreeViewPlugin />
       {/* <OnChangePlugin onChange={(editorState) => console.log(editorState)} /> */}
