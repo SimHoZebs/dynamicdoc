@@ -3,7 +3,7 @@ import Doc from "../lib/component/Doc";
 
 const Home = () => {
   return (
-    <div className="flex h-screen w-screen bg-dark-900 text-gray-200">
+    <div className="flex w-full">
       <Sidebar />
 
       <Doc />

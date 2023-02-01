@@ -34,7 +34,6 @@ import * as React from "react";
 import * as ReactDOM from "react-dom";
 
 import useModal from "../hooks/useModal";
-import { $createTimeNode } from "../component/TimeNode";
 import { $createSelectNode } from "../component/SelectNode";
 
 class ComponentPickerOption extends TypeaheadOption {
@@ -161,20 +160,6 @@ export default function ComponentPickerMenuPlugin(): JSX.Element {
 
   const options = useMemo(() => {
     const baseOptions = [
-      new ComponentPickerOption("Current Time", {
-        keywords: ["time", "current time"],
-        onSelect: () => {
-          editor.update(() => {
-            const selection = $getSelection();
-
-            if ($isRangeSelection(selection)) {
-              const timeNode = $createTimeNode();
-              selection.insertNodes([timeNode]);
-            }
-          });
-        },
-      }),
-
       new ComponentPickerOption("Select", {
         keywords: ["select", "status"],
         onSelect: () => {
