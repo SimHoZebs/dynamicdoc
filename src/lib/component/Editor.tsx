@@ -1,15 +1,5 @@
-import React, { useEffect, useRef, useState } from "react";
-import {
-  $createParagraphNode,
-  $createTextNode,
-  $getNodeByKey,
-  $getRoot,
-  $getSelection,
-  $insertNodes,
-  EditorState,
-  ParagraphNode,
-  TextNode,
-} from "lexical";
+import React from "react";
+import { ParagraphNode } from "lexical";
 import {
   LexicalComposer,
   InitialConfigType,
@@ -21,39 +11,28 @@ import { TRANSFORMERS } from "@lexical/markdown";
 import { MarkdownShortcutPlugin } from "@lexical/react/LexicalMarkdownShortcutPlugin";
 import LexicalErrorBoundary from "@lexical/react/LexicalErrorBoundary";
 import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
-import { OnChangePlugin } from "@lexical/react/LexicalOnChangePlugin";
 import { HistoryPlugin } from "@lexical/react/LexicalHistoryPlugin";
 import { HeadingNode, QuoteNode } from "@lexical/rich-text";
 import { LinkPlugin } from "@lexical/react/LexicalLinkPlugin";
 import { ListPlugin } from "@lexical/react/LexicalListPlugin";
-import { NodeEventPlugin } from "@lexical/react/LexicalNodeEventPlugin";
 import TreeViewPlugin from "../plugins/TreeViewPlugin";
 import ComponentPickerMenuPlugin from "../plugins/ComponentPickerMenuPlugin";
 
-import { TableCellNode, TableNode, TableRowNode } from "@lexical/table";
 import { ListItemNode, ListNode } from "@lexical/list";
 import { CodeHighlightNode, CodeNode } from "@lexical/code";
 import { AutoLinkNode, LinkNode } from "@lexical/link";
-import { DocWithContent } from "../util/types";
 import { SelectNode } from "./SelectNode";
 import SelectPlugin from "../plugins/SelectPlugin";
 import GroupPickerMenuPlugin from "../plugins/GroupPickerMenuPlugin";
 
 const theme = {
   // Theme styling goes here
+  list: {
+    listeitem: "my-2 mx-4",
+    ul: "p-0 m-0 ml-4 list-disc list-inside",
+    olDepth: ["p-0 m-0 ml-4"],
+  },
 };
-
-// When the editor changes, you can get notified via the
-// LexicalOnChangePlugin!
-function onChange(editorState: EditorState) {
-  editorState.read(() => {
-    // Read the contents of the EditorState here.
-    const root = $getRoot();
-    const selection = $getSelection();
-
-    console.log(root, selection);
-  });
-}
 
 // Catch any errors that occur during Lexical updates and log them
 // or throw them as needed. If you don't throw them, Lexical will
@@ -75,9 +54,6 @@ function Editor() {
       QuoteNode,
       CodeNode,
       CodeHighlightNode,
-      TableNode,
-      TableCellNode,
-      TableRowNode,
       AutoLinkNode,
       LinkNode,
       ParagraphNode,
@@ -127,7 +103,6 @@ function Editor() {
       {typeof document !== "undefined" ? <GroupPickerMenuPlugin /> : ""}
       <SelectPlugin />
       <TreeViewPlugin />
-      {/* <OnChangePlugin onChange={(editorState) => console.log(editorState)} /> */}
       <MarkdownShortcutPlugin transformers={TRANSFORMERS} />
     </LexicalComposer>
   );
