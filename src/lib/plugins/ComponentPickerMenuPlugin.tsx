@@ -6,6 +6,8 @@
  *
  */
 
+// This is copied from Meta's example because I'm not gonna waste time trying to figure out fuzzy matching and dynamic selections when the wheel's been invented.
+
 import { $createCodeNode } from "@lexical/code";
 import {
   INSERT_CHECK_LIST_COMMAND,
