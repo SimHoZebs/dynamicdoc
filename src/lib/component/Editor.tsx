@@ -13,17 +13,18 @@ import LexicalErrorBoundary from "@lexical/react/LexicalErrorBoundary";
 import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
 import { HistoryPlugin } from "@lexical/react/LexicalHistoryPlugin";
 import { HeadingNode, QuoteNode } from "@lexical/rich-text";
-import { LinkPlugin } from "@lexical/react/LexicalLinkPlugin";
 import { ListPlugin } from "@lexical/react/LexicalListPlugin";
 import TreeViewPlugin from "../plugins/TreeViewPlugin";
-import ComponentPickerMenuPlugin from "../plugins/ComponentPickerMenuPlugin";
+import { HashtagPlugin } from "@lexical/react/LexicalHashtagPlugin";
 
 import { ListItemNode, ListNode } from "@lexical/list";
 import { CodeHighlightNode, CodeNode } from "@lexical/code";
 import { AutoLinkNode, LinkNode } from "@lexical/link";
-import { SelectNode } from "./SelectNode";
-import SelectPlugin from "../plugins/SelectPlugin";
+import { HashtagNode } from "@lexical/hashtag";
 import GroupPickerMenuPlugin from "../plugins/GroupPickerMenuPlugin";
+import { GroupTitleNode } from "./nodes/GroupTitleNode";
+import { GroupItemNode } from "./nodes/GroupItemNode";
+import GroupPlugin from "../plugins/GroupPlugin";
 
 const theme = {
   // Theme styling goes here
@@ -47,7 +48,8 @@ function Editor() {
     theme,
     onError,
     nodes: [
-      SelectNode,
+      GroupTitleNode,
+      GroupItemNode,
       HeadingNode,
       ListNode,
       ListItemNode,
@@ -56,7 +58,7 @@ function Editor() {
       CodeHighlightNode,
       AutoLinkNode,
       LinkNode,
-      ParagraphNode,
+      HashtagNode,
     ],
     editorState: JSON.stringify({
       root: {
@@ -94,15 +96,15 @@ function Editor() {
       <SavePlugin />
       <RichTextPlugin
         contentEditable={<ContentEditable />}
-        placeholder={<div>Enter some text...</div>}
+        placeholder={null}
         ErrorBoundary={LexicalErrorBoundary}
       />
       <ListPlugin />
-      <LinkPlugin />
       <HistoryPlugin />
       {typeof document !== "undefined" ? <GroupPickerMenuPlugin /> : ""}
-      <SelectPlugin />
+      <GroupPlugin />
       <TreeViewPlugin />
+      <HashtagPlugin />
       <MarkdownShortcutPlugin transformers={TRANSFORMERS} />
     </LexicalComposer>
   );

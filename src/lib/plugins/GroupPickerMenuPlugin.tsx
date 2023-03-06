@@ -6,6 +6,8 @@
  *
  */
 
+// This is copied from Meta's example because I'm not gonna waste time trying to figure out fuzzy matching and dynamic selections when the wheel's been invented.
+
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import {
   LexicalTypeaheadMenuPlugin,
@@ -18,6 +20,7 @@ import * as React from "react";
 import * as ReactDOM from "react-dom";
 
 import useModal from "../hooks/useModal";
+import { INSERT_GROUP_COMMAND } from "./GroupPlugin";
 
 class ComponentPickerOption extends TypeaheadOption {
   // What shows up in the editor
@@ -108,14 +111,14 @@ export default function ComponentPickerMenuPlugin(): JSX.Element {
       options.push(
         new ComponentPickerOption(`Nest in "${queryString}"`, {
           onSelect(queryString) {
-            //create link node
+            editor.dispatchCommand(INSERT_GROUP_COMMAND, queryString);
           },
         })
       );
     }
 
     return options;
-  }, [queryString]);
+  }, [queryString, editor]);
 
   const options = useMemo(() => {
     const baseOptions: ComponentPickerOption[] = [];
