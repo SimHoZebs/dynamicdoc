@@ -8,7 +8,7 @@ interface Props {
 
 const Sidebar = () => {
   return (
-    <div className="flex min-w-[180px] flex-col items-center justify-start gap-y-2 bg-dark-700 p-3">
+    <div className="outline-3 flex min-w-[180px] flex-col items-center justify-start gap-y-2 p-4 outline outline-dark-400">
       <div>Hello</div>
     </div>
   );

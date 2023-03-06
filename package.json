@@ -8,7 +8,7 @@
     "devtool": "react-devtools"
   },
   "dependencies": {
-    "@lexical/react": "^0.7.6",
+    "@lexical/react": "^0.8.1",
     "@prisma/client": "^4.8.0",
     "@tanstack/react-query": "^4.24.4",
     "@trpc/client": "^10.7.0",

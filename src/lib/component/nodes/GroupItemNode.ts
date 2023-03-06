@@ -14,10 +14,10 @@ export class GroupItemNode extends ElementNode {
   }
 
   createDOM(_config: EditorConfig): HTMLElement {
-    const element = document.createElement("div");
-    const parent = this.getParent();
+    const dom = document.createElement("div");
+    dom.className = "group-item";
 
-    return element;
+    return dom;
   }
 
   updateDOM(

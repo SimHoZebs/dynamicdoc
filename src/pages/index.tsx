@@ -6,7 +6,7 @@ const Home = () => {
     <div className="flex w-full">
       <Sidebar />
 
-      <div className="flex h-full w-full flex-col bg-inherit">
+      <div className="flex h-full w-full max-w-3xl flex-col bg-inherit p-4">
         <Editor />
       </div>
     </div>

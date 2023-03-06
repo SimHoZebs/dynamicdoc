@@ -22,6 +22,7 @@ export class GroupContainerNode extends ElementNode {
 
   createDOM(_config: EditorConfig, _editor: LexicalEditor): HTMLElement {
     const dom = document.createElement("div");
+    dom.className = "group-container";
     return dom;
   }
 

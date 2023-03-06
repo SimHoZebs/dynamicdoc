@@ -1,3 +1,17 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/*Temporary as changing styles in Node files require full refresh*/
+@layer components {
+  .group-container {
+    @apply outline-2 marker:text-dark-100;
+  }
+  .group-title {
+  }
+  .group-item {
+    @apply pl-4;
+  }
+  .custom-paragraph {
+  }
+}
