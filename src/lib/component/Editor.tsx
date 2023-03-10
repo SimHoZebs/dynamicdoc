@@ -1,5 +1,5 @@
 import React from "react";
-import { ParagraphNode } from "lexical";
+import { $createParagraphNode, $createTextNode, ParagraphNode } from "lexical";
 import {
   LexicalComposer,
   InitialConfigType,
@@ -33,6 +33,7 @@ const theme = {
     ul: "p-0 m-0 ml-4 list-disc list-inside",
     olDepth: ["p-0 m-0 ml-4"],
   },
+  paragraph: "paragraph",
 };
 
 // Catch any errors that occur during Lexical updates and log them

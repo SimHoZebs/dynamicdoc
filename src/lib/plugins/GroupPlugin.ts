@@ -33,6 +33,11 @@ export default function GroupPlugin(): JSX.Element | null {
         "GropuPlugin: GroupContainerNode, GroupTitleNode, or GroupItemNode are not registered on editor."
       );
     }
+
+    const displayMenu = (event: MouseEvent) => {
+      console.log("event", event.target);
+    };
+
     return mergeRegister(
       editor.registerCommand(
         INSERT_GROUP_COMMAND,
@@ -50,17 +55,17 @@ export default function GroupPlugin(): JSX.Element | null {
             }
 
             const textContent = currParentNode.getTextContent();
-            const groupTitle = $createGroupTitleNode().append(
+            const groupContainer = $createGroupTitleNode().append(
               $createTextNode(payload)
             );
-            const groupItem = $createGroupItemNode().append(
+            const paragraph = $createParagraphNode().append(
               $createTextNode(textContent)
             );
-            groupTitle.append(groupItem);
+            groupContainer.append(paragraph);
 
-            currParentNode.replace(groupTitle);
+            currParentNode.replace(groupContainer);
 
-            groupItem.selectEnd();
+            paragraph.selectEnd();
           });
 
           return true;
@@ -96,22 +101,26 @@ export default function GroupPlugin(): JSX.Element | null {
             return false;
           }
 
-          const groupTitle = $createGroupTitleNode().append(
+          const groupContainer = $createGroupTitleNode().append(
             $createTextNode(prevParentNode?.getTextContent())
           );
-          const groupItem = $createGroupItemNode().append(
+          const paragraph = $createParagraphNode().append(
             $createTextNode(currParentNode.getTextContent())
           );
 
-          groupTitle.append(groupItem);
+          groupContainer.append(paragraph);
 
           currParentNode.remove();
-          prevParentNode.replace(groupTitle);
-          groupItem.selectEnd();
+          prevParentNode.replace(groupContainer);
+          paragraph.selectEnd();
           return true;
         },
         COMMAND_PRIORITY_EDITOR
-      )
+      ),
+
+      editor.registerRootListener((rootElement) => {
+        rootElement?.addEventListener("click", displayMenu);
+      })
     );
   });
 
