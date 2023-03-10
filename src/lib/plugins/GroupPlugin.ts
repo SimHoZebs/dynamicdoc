@@ -1,10 +1,6 @@
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { KeyboardEvent, useEffect } from "react";
 import {
-  $createGroupItemNode,
-  GroupItemNode,
-} from "../component/nodes/GroupItemNode";
-import {
   $createGroupTitleNode,
   GroupTitleNode,
 } from "../component/nodes/GroupTitleNode";
@@ -28,7 +24,7 @@ export default function GroupPlugin(): JSX.Element | null {
   const [editor] = useLexicalComposerContext();
 
   useEffect(() => {
-    if (!editor.hasNodes([GroupTitleNode, GroupItemNode])) {
+    if (!editor.hasNodes([GroupTitleNode])) {
       throw new Error(
         "GropuPlugin: GroupContainerNode, GroupTitleNode, or GroupItemNode are not registered on editor."
       );

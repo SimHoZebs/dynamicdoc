@@ -12,12 +12,6 @@
   .group-item {
     @apply pl-4;
   }
-  .custom-paragraph {
-  }
-
-  /* .node-controller {
-    @apply mr-2 inline-block h-3 w-3 justify-start bg-slate-700;
-  } */
 
   .paragraph {
     @apply pointer-events-none flex items-center before:pointer-events-auto before:mr-3 before:inline-block before:h-3 before:w-3 before:rounded-full before:bg-dark-200 before:hover:cursor-pointer;

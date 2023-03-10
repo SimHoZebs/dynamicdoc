@@ -23,7 +23,6 @@ import { AutoLinkNode, LinkNode } from "@lexical/link";
 import { HashtagNode } from "@lexical/hashtag";
 import GroupPickerMenuPlugin from "../plugins/GroupPickerMenuPlugin";
 import { GroupTitleNode } from "./nodes/GroupTitleNode";
-import { GroupItemNode } from "./nodes/GroupItemNode";
 import GroupPlugin from "../plugins/GroupPlugin";
 
 const theme = {
@@ -50,7 +49,6 @@ function Editor() {
     onError,
     nodes: [
       GroupTitleNode,
-      GroupItemNode,
       HeadingNode,
       ListNode,
       ListItemNode,
@@ -61,6 +59,7 @@ function Editor() {
       LinkNode,
       HashtagNode,
     ],
+
     editorState: JSON.stringify({
       root: {
         children: [
