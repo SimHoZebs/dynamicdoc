@@ -1,5 +1,4 @@
 import React from "react";
-import { $createParagraphNode, $createTextNode, ParagraphNode } from "lexical";
 import {
   LexicalComposer,
   InitialConfigType,
@@ -25,6 +24,7 @@ import GroupPickerMenuPlugin from "../plugins/GroupPickerMenuPlugin";
 import { GroupTitleNode } from "./nodes/GroupTitleNode";
 import GroupPlugin from "../plugins/GroupPlugin";
 import { NodeControllerNode } from "./nodes/NodeControllerNode";
+import NodeControllerPlugin from "../plugins/NodeControllerPlugin";
 
 const theme = {
   // Theme styling goes here
@@ -104,6 +104,7 @@ function Editor() {
       <ListPlugin />
       <HistoryPlugin />
       {typeof document !== "undefined" ? <GroupPickerMenuPlugin /> : ""}
+      <NodeControllerPlugin />
       <GroupPlugin />
       <TreeViewPlugin />
       <HashtagPlugin />

@@ -21,8 +21,6 @@ import {
 import { NodeControllerNode } from "../component/nodes/NodeControllerNode";
 
 export const INSERT_GROUP_COMMAND = createCommand<string>();
-export const NEW_PARAGRAPH_COMMAND = createCommand<string>();
-
 export default function GroupPlugin(): JSX.Element | null {
   const [editor] = useLexicalComposerContext();
 
@@ -37,45 +35,10 @@ export default function GroupPlugin(): JSX.Element | null {
       console.log("event", event.target);
     };
 
-    return mergeRegister(
-      updateCreatedParagraph(editor),
-
-      findCreatedParagraph(editor),
-
-      arrowToGroup(editor),
-
-      tabToGroup(editor)
-    );
+    return mergeRegister(arrowToGroup(editor), tabToGroup(editor));
   });
 
   return null;
-}
-
-function updateCreatedParagraph(editor: LexicalEditor) {
-  return editor.registerCommand(
-    NEW_PARAGRAPH_COMMAND,
-    (key) => {
-      const node = $getNodeByKey(key);
-      if (!$isParagraphNode(node)) return false;
-
-      const newTextNode = $createTextNode("");
-      node.append(new NodeControllerNode(), newTextNode);
-      newTextNode.select();
-
-      return true;
-    },
-    COMMAND_PRIORITY_EDITOR
-  );
-}
-
-function findCreatedParagraph(editor: LexicalEditor) {
-  return editor.registerMutationListener(ParagraphNode, (mutatedNodes) => {
-    for (let [nodeKey, mutation] of mutatedNodes) {
-      if (mutation === "created") {
-        editor.dispatchCommand(NEW_PARAGRAPH_COMMAND, nodeKey);
-      }
-    }
-  });
 }
 
 function arrowToGroup(editor: LexicalEditor) {
