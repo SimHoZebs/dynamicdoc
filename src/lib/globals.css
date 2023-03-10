@@ -13,7 +13,11 @@
     @apply pl-4;
   }
 
+  .node-controller {
+    @apply mr-3 h-3 w-3 rounded-full bg-dark-200;
+  }
+
   .paragraph {
-    @apply pointer-events-none flex items-center before:pointer-events-auto before:mr-3 before:inline-block before:h-3 before:w-3 before:rounded-full before:bg-dark-200 before:hover:cursor-pointer;
+    @apply flex items-center;
   }
 }

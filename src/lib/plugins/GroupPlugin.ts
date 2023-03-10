@@ -10,16 +10,19 @@ import {
   $createTextNode,
   $getNodeByKey,
   $getSelection,
+  $isParagraphNode,
   $isRangeSelection,
   COMMAND_PRIORITY_EDITOR,
   createCommand,
   KEY_TAB_COMMAND,
+  LexicalEditor,
+  ParagraphNode,
 } from "lexical";
+import { NodeControllerNode } from "../component/nodes/NodeControllerNode";
 
 export const INSERT_GROUP_COMMAND = createCommand<string>();
+export const NEW_PARAGRAPH_COMMAND = createCommand<string>();
 
-//TODO: when linebreak is inserted, create a new groupItem instead.
-//TODO: When tab outdent, change parent groupTitle to grandparent. If there is no grandparent, become paragraph.
 export default function GroupPlugin(): JSX.Element | null {
   const [editor] = useLexicalComposerContext();
 
@@ -35,90 +38,125 @@ export default function GroupPlugin(): JSX.Element | null {
     };
 
     return mergeRegister(
-      editor.registerCommand(
-        INSERT_GROUP_COMMAND,
-        (payload: string) => {
-          editor.update(() => {
-            const selection = $getSelection();
+      updateCreatedParagraph(editor),
 
-            if (!$isRangeSelection(selection)) {
-              return;
-            }
+      findCreatedParagraph(editor),
 
-            const currParentNode = selection.getNodes()[0].getParent();
-            if (!currParentNode) {
-              return false;
-            }
+      arrowToGroup(editor),
 
-            const textContent = currParentNode.getTextContent();
-            const groupContainer = $createGroupTitleNode().append(
-              $createTextNode(payload)
-            );
-            const paragraph = $createParagraphNode().append(
-              $createTextNode(textContent)
-            );
-            groupContainer.append(paragraph);
-
-            currParentNode.replace(groupContainer);
-
-            paragraph.selectEnd();
-          });
-
-          return true;
-        },
-        COMMAND_PRIORITY_EDITOR
-      ),
-
-      editor.registerCommand<KeyboardEvent>(
-        KEY_TAB_COMMAND,
-        (event) => {
-          const selection = $getSelection();
-          if (!$isRangeSelection(selection)) {
-            return false;
-          }
-
-          const currParentNode = selection.getNodes()[0].getParent();
-          if (!currParentNode) {
-            console.log("no parent node");
-            return false;
-          }
-
-          //TODO: Don't do this if prevParent is a groupTitle
-          const prevParentNodeKey = currParentNode.__prev;
-          if (!prevParentNodeKey) {
-            console.log("no prev node");
-            return false;
-          }
-
-          event.preventDefault();
-          const prevParentNode = $getNodeByKey(prevParentNodeKey);
-          if (!prevParentNode) {
-            console.log("no prev node");
-            return false;
-          }
-
-          const groupContainer = $createGroupTitleNode().append(
-            $createTextNode(prevParentNode?.getTextContent())
-          );
-          const paragraph = $createParagraphNode().append(
-            $createTextNode(currParentNode.getTextContent())
-          );
-
-          groupContainer.append(paragraph);
-
-          currParentNode.remove();
-          prevParentNode.replace(groupContainer);
-          paragraph.selectEnd();
-          return true;
-        },
-        COMMAND_PRIORITY_EDITOR
-      ),
-
-      editor.registerRootListener((rootElement) => {
-        rootElement?.addEventListener("click", displayMenu);
-      })
+      tabToGroup(editor)
     );
   });
 
   return null;
+}
+
+function updateCreatedParagraph(editor: LexicalEditor) {
+  return editor.registerCommand(
+    NEW_PARAGRAPH_COMMAND,
+    (key) => {
+      const node = $getNodeByKey(key);
+      if (!$isParagraphNode(node)) return false;
+
+      const newTextNode = $createTextNode("");
+      node.append(new NodeControllerNode(), newTextNode);
+      newTextNode.select();
+
+      return true;
+    },
+    COMMAND_PRIORITY_EDITOR
+  );
+}
+
+function findCreatedParagraph(editor: LexicalEditor) {
+  return editor.registerMutationListener(ParagraphNode, (mutatedNodes) => {
+    for (let [nodeKey, mutation] of mutatedNodes) {
+      if (mutation === "created") {
+        editor.dispatchCommand(NEW_PARAGRAPH_COMMAND, nodeKey);
+      }
+    }
+  });
+}
+
+function arrowToGroup(editor: LexicalEditor) {
+  return editor.registerCommand(
+    INSERT_GROUP_COMMAND,
+    (payload: string) => {
+      editor.update(() => {
+        const selection = $getSelection();
+
+        if (!$isRangeSelection(selection)) {
+          return;
+        }
+
+        const currParentNode = selection.getNodes()[0].getParent();
+        if (!currParentNode) {
+          return false;
+        }
+
+        const textContent = currParentNode.getTextContent();
+        const groupContainer = $createGroupTitleNode().append(
+          $createTextNode(payload)
+        );
+        const paragraph = $createParagraphNode().append(
+          $createTextNode(textContent)
+        );
+        groupContainer.append(paragraph);
+
+        currParentNode.replace(groupContainer);
+
+        paragraph.selectEnd();
+      });
+
+      return true;
+    },
+    COMMAND_PRIORITY_EDITOR
+  );
+}
+
+function tabToGroup(editor: LexicalEditor) {
+  return editor.registerCommand<KeyboardEvent>(
+    KEY_TAB_COMMAND,
+    (event) => {
+      const selection = $getSelection();
+      if (!$isRangeSelection(selection)) {
+        return false;
+      }
+
+      const currParentNode = selection.getNodes()[0].getParent();
+      if (!currParentNode) {
+        console.log("no parent node");
+        return false;
+      }
+
+      //TODO: Don't do this if prevParent is a groupTitle
+      const prevParentNodeKey = currParentNode.__prev;
+      if (!prevParentNodeKey) {
+        console.log("no prev node");
+        return false;
+      }
+
+      event.preventDefault();
+      const prevParentNode = $getNodeByKey(prevParentNodeKey);
+      if (!prevParentNode) {
+        console.log("no prev node");
+        return false;
+      }
+
+      const groupContainer = $createGroupTitleNode().append(
+        $createTextNode(prevParentNode?.getTextContent())
+      );
+      const paragraph = $createParagraphNode().append(
+        $createTextNode(currParentNode.getTextContent())
+      );
+
+      groupContainer.append(paragraph);
+
+      currParentNode.remove();
+      prevParentNode.replace(groupContainer);
+      paragraph.selectEnd();
+      return true;
+    },
+    COMMAND_PRIORITY_EDITOR
+  );
 }

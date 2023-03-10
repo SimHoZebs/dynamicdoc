@@ -24,6 +24,7 @@ import { HashtagNode } from "@lexical/hashtag";
 import GroupPickerMenuPlugin from "../plugins/GroupPickerMenuPlugin";
 import { GroupTitleNode } from "./nodes/GroupTitleNode";
 import GroupPlugin from "../plugins/GroupPlugin";
+import { NodeControllerNode } from "./nodes/NodeControllerNode";
 
 const theme = {
   // Theme styling goes here
@@ -48,6 +49,7 @@ function Editor() {
     theme,
     onError,
     nodes: [
+      NodeControllerNode,
       GroupTitleNode,
       HeadingNode,
       ListNode,
